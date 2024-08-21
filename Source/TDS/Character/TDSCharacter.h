@@ -42,7 +42,7 @@ private:
 
 public:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Movement")
-	EMovementState MovementState = EMovementState::Run_State;
+	EMovementState MovementState = EMovementState::Walk_State;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Movement")
 	FCharacterSpeed CharacterSpeed;

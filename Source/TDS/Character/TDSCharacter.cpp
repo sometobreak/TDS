@@ -147,7 +147,7 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 
 void ATDSCharacter::CharacterUpdate()
 {
-	float ResultSpeed = CharacterSpeed.RunSpeed;
+	float ResultSpeed = CharacterSpeed.WalkSpeed;
 
 	switch (MovementState)
 	{
