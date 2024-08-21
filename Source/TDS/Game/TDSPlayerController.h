@@ -10,7 +10,4 @@ UCLASS()
 class ATDSPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-
-public:
-	ATDSPlayerController();
 };
