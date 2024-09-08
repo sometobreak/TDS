@@ -63,7 +63,7 @@ void ATDSCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-	if (CursorToWorld != nullptr)
+	/*if (CursorToWorld != nullptr)
 	{
 		if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
 		{
@@ -74,7 +74,7 @@ void ATDSCharacter::Tick(float DeltaSeconds)
 				FVector StartLocation = TopDownCameraComponent->GetComponentLocation();
 				FVector EndLocation = TopDownCameraComponent->GetComponentRotation().Vector() * 2000.0f;
 				Params.AddIgnoredActor(this);
-				World->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility, Params);
+				World->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_EngineTraceChannel6, Params);
 				FQuat SurfaceRotation = HitResult.ImpactNormal.ToOrientationRotator().Quaternion();
 				CursorToWorld->SetWorldLocationAndRotation(HitResult.Location, SurfaceRotation);
 			}
@@ -82,13 +82,13 @@ void ATDSCharacter::Tick(float DeltaSeconds)
 		else if (APlayerController* PC = Cast<APlayerController>(GetController()))
 		{
 			FHitResult TraceHitResult;
-			PC->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
+			PC->GetHitResultUnderCursor(ECC_EngineTraceChannel6, true, TraceHitResult);
 			FVector CursorFV = TraceHitResult.ImpactNormal;
 			FRotator CursorR = CursorFV.Rotation();
 			CursorToWorld->SetWorldLocation(TraceHitResult.Location);
 			CursorToWorld->SetWorldRotation(CursorR);
 		}
-	}
+	}*/
 
 	MovementTick(DeltaSeconds);
 }
@@ -127,7 +127,7 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 	//}
 
 	// With "DeprojectMousePositionToWorld"
-	APlayerController* CharacterController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	/*APlayerController* CharacterController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (CharacterController)
 	{
 		FVector WorldLocation;
@@ -135,14 +135,14 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 		CharacterController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
 
 		FHitResult ResultHit;
-		GetWorld()->LineTraceSingleByChannel(ResultHit, WorldLocation, WorldLocation + WorldDirection * 10000, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(ResultHit, WorldLocation, WorldLocation + WorldDirection * 10000, ECollisionChannel::ECC_EngineTraceChannel6);
 
 		if (ResultHit.bBlockingHit)
 		{
 			float RotatorYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
 			SetActorRotation(FQuat(FRotator(0.0f, RotatorYaw, 0.0f)));
 		}
-	}
+	}*/
 }
 
 void ATDSCharacter::CharacterUpdate()
