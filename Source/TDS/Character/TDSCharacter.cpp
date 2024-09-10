@@ -160,6 +160,9 @@ void ATDSCharacter::CharacterUpdate()
 	case EMovementState::Run_State:
 		ResultSpeed = CharacterSpeed.RunSpeed;
 		break;
+	case EMovementState::Stay_State:
+		ResultSpeed = CharacterSpeed.StaySpeed;
+		break;
 	default:
 		break;
 	}

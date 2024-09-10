@@ -13,6 +13,7 @@ enum class EMovementState : uint8
 	Aim_State UMETA(DisplayName = "Aim State"),
 	Walk_State UMETA(DisplayName = "Walk State"),
 	Run_State UMETA(DisplayName = "Run State"),
+	Stay_State UMETA(DisplayName = "Stay State"),
 };
 
 USTRUCT(BlueprintType)
@@ -26,6 +27,8 @@ struct FCharacterSpeed
 	float WalkSpeed = 350.0f;
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Movement")
 	float RunSpeed = 600.0f;
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Movement")
+	float StaySpeed = 0.0f;
 };
 
 UCLASS()
