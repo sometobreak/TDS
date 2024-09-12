@@ -93,12 +93,22 @@ void ATDSCharacter::Tick(float DeltaSeconds)
 	MovementTick(DeltaSeconds);
 }
 
+void ATDSCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	InitWeapon();
+}
+
 void ATDSCharacter::SetupPlayerInputComponent(UInputComponent* NewInputComponent)
 {
 	Super::SetupPlayerInputComponent(NewInputComponent);
 
 	NewInputComponent->BindAxis(TEXT("MoveForward"), this, &ATDSCharacter::InputAxisX);
 	NewInputComponent->BindAxis(TEXT("MoveRight"), this, &ATDSCharacter::InputAxisY);
+
+	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Pressed, this, &ATDSCharacter::InputAttackPressed);
+	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Released, this, &ATDSCharacter::InputAttackReleased);
 }
 
 void ATDSCharacter::InputAxisX(float Value)
@@ -109,6 +119,16 @@ void ATDSCharacter::InputAxisX(float Value)
 void ATDSCharacter::InputAxisY(float Value)
 {
 	AxisY = Value;
+}
+
+void ATDSCharacter::InputAttackPressed()
+{
+	AttackCharEvent(true);
+}
+
+void ATDSCharacter::InputAttackReleased()
+{
+	AttackCharEvent(false);
 }
 
 void ATDSCharacter::MovementTick(float DeltaTime)
@@ -143,6 +163,43 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 			SetActorRotation(FQuat(FRotator(0.0f, RotatorYaw, 0.0f)));
 		}
 	}*/
+
+	//-----------------------------
+	// NEW ROTATION!!!!!!!!!
+	// ----------------------------
+	
+	//if (MovementState == EMovementState::Run_State)
+	//{
+	//	FVector myRotationVector = FVector(AxisX, AxisY, 0.0f);
+	//	FRotator myRotator = myRotationVector.ToOrientationRotator();
+	//	SetActorRotation((FQuat(myRotator)));
+	//}
+	//else
+	//{
+	//	APlayerController* Controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	//	if (Controller)
+	//	{
+	//		FHitResult ResultHit;
+	//		//Controller->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery6, false, ResultHit);// bug was here Config\DefaultEngine.Ini
+	//		Controller->GetHitResultUnderCursor(ECC_GameTraceChannel1, true, ResultHit);
+
+	//		float FindRotaterResultYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
+	//		SetActorRotation(FQuat(FRotator(0.0f, FindRotaterResultYaw, 0.0f)));
+	//	}
+	//}
+}
+
+void ATDSCharacter::AttackCharEvent(bool bIsFiring)
+{
+	AWeaponBase* Weapon = nullptr;
+	Weapon = GetCurrentWeapon();
+	if (Weapon)
+	{
+		//ToDo Check melee or range
+		Weapon->SetWeaponStateFire(bIsFiring);
+	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("ATPSCharacter::AttackCharEvent - CurrentWeapon - NULL"));
 }
 
 void ATDSCharacter::CharacterUpdate()
@@ -172,6 +229,68 @@ void ATDSCharacter::CharacterUpdate()
 
 void ATDSCharacter::ChangeMovementState(EMovementState NewMovementState)
 {
+	//if (SprintRunEnabled)
+	//{
+	//	WalkEnabled = false;
+	//	AimEnabled = false;
+	//	MovementState = EMovementState::SprintRun_State;
+	//}
+	//if (WalkEnabled && !SprintRunEnabled && AimEnabled)
+	//{
+	//	MovementState = EMovementState::AimWalk_State;
+	//}
+	//else
+	//{
+	//	if (WalkEnabled && !SprintRunEnabled && !AimEnabled)
+	//	{
+	//		MovementState = EMovementState::Walk_State;
+	//	}
+	//	else
+	//	{
+	//		if (!WalkEnabled && !SprintRunEnabled && AimEnabled)
+	//		{
+	//			MovementState = EMovementState::Aim_State;
+	//		}
+	//	}
+	//}
+
 	MovementState = NewMovementState;
 	CharacterUpdate();
+
+	//Weapon state update
+	AWeaponBase* Weapon = GetCurrentWeapon();
+	if (Weapon)
+	{
+		Weapon->UpdateStateWeapon(MovementState);
+	}
+}
+
+AWeaponBase* ATDSCharacter::GetCurrentWeapon()
+{
+	return CurrentWeapon;;
+}
+
+
+void ATDSCharacter::InitWeapon()//ToDo Init by id row by table
+{
+	if (InitWeaponClass)
+	{
+		FVector SpawnLocation = FVector(0);
+		FRotator SpawnRotation = FRotator(0);
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Owner = GetOwner();
+		SpawnParams.Instigator = GetInstigator();
+
+		AWeaponBase* Weapon = Cast<AWeaponBase>(GetWorld()->SpawnActor(InitWeaponClass, &SpawnLocation, &SpawnRotation, SpawnParams));
+		if (Weapon)
+		{
+			FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
+			Weapon->AttachToComponent(GetMesh(), Rule, FName("WeaponSocketRightHand"));
+			CurrentWeapon = Weapon;
+
+			Weapon->UpdateStateWeapon(MovementState);
+		}
+	}
 }

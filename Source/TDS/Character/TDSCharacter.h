@@ -4,13 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
 #include "../FunctionLibrary/Types.h"
+#include "../Item/Weapon/WeaponBase.h"
+
 #include "TDSCharacter.generated.h"
 
 UCLASS(Blueprintable)
 class ATDSCharacter : public ACharacter
 {
 	GENERATED_BODY()
+
+protected:
+	virtual void BeginPlay() override;
 
 public:
 	ATDSCharacter();
@@ -41,29 +47,54 @@ private:
 	class UDecalComponent* CursorToWorld;
 
 public:
+	//Movement
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Movement")
 	EMovementState MovementState = EMovementState::Walk_State;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Movement")
 	FCharacterSpeed CharacterSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool WalkEnabled = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool AimEnabled = false;
+
+	//Inputs
 	float AxisX = 0.0f;
 	float AxisY = 0.0f;
 
 	UFUNCTION()
 	void InputAxisX(float Value);
-
 	UFUNCTION()
 	void InputAxisY(float Value);
+	UFUNCTION()
+	void InputAttackPressed();
+	UFUNCTION()
+	void InputAttackReleased();
 
 	//Tick function
 	UFUNCTION()
 	void MovementTick(float DeltaTime);
 
+
+	//Weapon	
+	AWeaponBase* CurrentWeapon = nullptr;
+
+	//for demo 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Demo")
+	TSubclassOf<AWeaponBase> InitWeaponClass = nullptr;
+
+	//Func
+	UFUNCTION(BlueprintCallable)
+	void AttackCharEvent(bool bIsFiring);
 	UFUNCTION(BlueprintCallable)
 	void CharacterUpdate();
-
 	UFUNCTION(BlueprintCallable)
 	void ChangeMovementState(EMovementState NewMovementState);
+
+	UFUNCTION(BlueprintCallable)
+	AWeaponBase* GetCurrentWeapon();
+	UFUNCTION(BlueprintCallable)
+	void InitWeapon();
 };
 
