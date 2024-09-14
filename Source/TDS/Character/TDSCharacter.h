@@ -31,7 +31,7 @@ public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns CursorToWorld subobject **/
-	FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
+	//FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
 
 private:
 	/** Top down camera */
@@ -47,6 +47,12 @@ private:
 	class UDecalComponent* CursorToWorld;
 
 public:
+	//Cursor
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
+	UMaterialInterface* CursorMaterial = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
+	FVector CursorSize = FVector(20.0f, 40.0f, 40.0f);
+
 	//Movement
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Movement")
 	EMovementState MovementState = EMovementState::Walk_State;
@@ -84,6 +90,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Demo")
 	TSubclassOf<AWeaponBase> InitWeaponClass = nullptr;
 
+	UDecalComponent* CurrentCursor = nullptr;
+
 	//Func
 	UFUNCTION(BlueprintCallable)
 	void AttackCharEvent(bool bIsFiring);
@@ -96,5 +104,7 @@ public:
 	AWeaponBase* GetCurrentWeapon();
 	UFUNCTION(BlueprintCallable)
 	void InitWeapon();
+	UFUNCTION(BlueprintCallable)
+	UDecalComponent* GetCursorToWorld();
 };
 
