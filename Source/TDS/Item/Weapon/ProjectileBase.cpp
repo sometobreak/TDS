@@ -13,9 +13,13 @@ AProjectileBase::AProjectileBase()
 
 	BulletCollisionSphere->SetSphereRadius(16.f);
 
-	//BulletCollisionSphere->OnComponentHit.AddDynamic(this, &AProjectileBase::BulletCollisionSphereHit);
-	//BulletCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AProjectileBase::BulletCollisionSphereBeginOverlap);
+	BulletCollisionSphere->OnComponentHit.AddDynamic(this, &AProjectileBase::BulletCollisionSphereHit);
+	BulletCollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AProjectileBase::BulletCollisionSphereBeginOverlap);
 	//BulletCollisionSphere->OnComponentEndOverlap.AddDynamic(this, &AProjectileBase::BulletCollisionSphereEndOverlap);
+	if (BulletCollisionSphere->OnComponentEndOverlap.IsBound())
+	{
+		BulletCollisionSphere->OnComponentEndOverlap.AddDynamic(this, &AProjectileBase::BulletCollisionSphereEndOverlap);
+	}
 
 	BulletCollisionSphere->bReturnMaterialOnMove = true;//hit event return physMaterial
 
@@ -55,16 +59,16 @@ void AProjectileBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-//
-//void AProjectileBase::BulletCollisionSphereHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-//{
-//}
-//
-//void AProjectileBase::BulletCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-//{
-//}
-//
-//void AProjectileBase::BulletCollisionSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-//{
-//}
+
+void AProjectileBase::BulletCollisionSphereHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+}
+
+void AProjectileBase::BulletCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+}
+
+void AProjectileBase::BulletCollisionSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+}
 

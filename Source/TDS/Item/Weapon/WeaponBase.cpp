@@ -45,7 +45,7 @@ void AWeaponBase::Tick(float DeltaTime)
 void AWeaponBase::FireTick(float DeltaTime)
 {
 	if (WeaponFiring)
-		if (FireTime < 0.f)
+		if (FireTime < 0.0f)
 			Fire();
 		else
 			FireTime -= DeltaTime;
