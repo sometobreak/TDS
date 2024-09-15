@@ -2,6 +2,8 @@
 
 
 #include "WeaponBase.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AWeaponBase::AWeaponBase()

@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "DrawDebugHelpers.h" 
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Materials/Material.h"
 #include "Kismet/GameplayStatics.h"
@@ -96,61 +97,44 @@ void ATDSCharacter::InputAttackReleased()
 
 void ATDSCharacter::MovementTick(float DeltaTime)
 {
+	// Movement
 	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), AxisX);
 	AddMovementInput(FVector(0.0f, 1.0f, 0.0f), AxisY);
 
-	// With "GetHitResultUnderCursorByChannel()"
-	//APlayerController* CharacterController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	//if (CharacterController)
-	//{
-	//	FHitResult ResultHit;
-	//	CharacterController->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery6, false, ResultHit);
-	//	float RotatorYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
-	//	SetActorRotation(FQuat(FRotator(0.0f, RotatorYaw, 0.0f)));
-	//}
-
-	// With "DeprojectMousePositionToWorld"
-	/*APlayerController* CharacterController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (CharacterController)
+	// Rotation
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	if (PlayerController)
 	{
-		FVector WorldLocation;
-		FVector WorldDirection;
-		CharacterController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
+		FVector CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
+		FVector CameraDirection = PlayerController->PlayerCameraManager->GetCameraRotation().Vector();
 
-		FHitResult ResultHit;
-		GetWorld()->LineTraceSingleByChannel(ResultHit, WorldLocation, WorldLocation + WorldDirection * 10000, ECollisionChannel::ECC_EngineTraceChannel6);
-
-		if (ResultHit.bBlockingHit)
+		FVector WorldLocation, WorldDirection;
+		if (PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
 		{
-			float RotatorYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
-			SetActorRotation(FQuat(FRotator(0.0f, RotatorYaw, 0.0f)));
+			FVector Start = CameraLocation;
+			FVector End = WorldLocation + WorldDirection * 10000.0f; // Trace Distance
+
+			FHitResult HitResult;
+			FCollisionQueryParams Params;
+			Params.AddIgnoredActor(this); // Ignore Character
+
+			bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params);
+
+			// Draw Debug Line Trace
+			//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.1f, 0, 0.1f);
+
+			if (bHit)
+			{
+				FVector TargetLocation = HitResult.ImpactPoint;
+				TargetLocation.Z += 115.0f;
+				FRotator LookAtRotation = FRotationMatrix::MakeFromX(TargetLocation - GetActorLocation()).Rotator();
+				SetActorRotation(LookAtRotation);
+
+				// Draw HitResult Debug Sphere 
+				//DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 12, FColor::Red, false, 1.0f);
+			}
 		}
-	}*/
-
-	//-----------------------------
-	// NEW ROTATION!!!!!!!!!
-	// ----------------------------
-	
-	// Rotation example Ultimate Sion
-	//if (MovementState == EMovementState::Run_State)
-	//{
-	//	FVector myRotationVector = FVector(AxisX, AxisY, 0.0f);
-	//	FRotator myRotator = myRotationVector.ToOrientationRotator();
-	//	SetActorRotation((FQuat(myRotator)));
-	//}
-	//else
-	//{
-	//APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	//if (PlayerController)
-	//{
-	//	FHitResult ResultHit;
-	//	Controller->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery6, false, ResultHit);// bug was here Config\DefaultEngine.Ini
-	//	PlayerController->GetHitResultUnderCursor(ECC_GameTraceChannel1, true, ResultHit);
-
-	//	float FindRotaterResultYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
-	//	SetActorRotation(FQuat(FRotator(0.0f, FindRotaterResultYaw, 0.0f)));
-	//}
-	//}
+	}
 }
 
 void ATDSCharacter::AttackCharEvent(bool bIsFiring)
