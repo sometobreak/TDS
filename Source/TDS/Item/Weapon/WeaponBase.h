@@ -7,9 +7,13 @@
 #include "Components/ArrowComponent.h"
 
 #include "../../FunctionLibrary/Types.h"
-#include "ProjectileBase.h"
+#include "Projectile/ProjectileBase.h"
 
 #include "WeaponBase.generated.h"
+
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponFireStart);//ToDo Delegate on event weapon fire - Anim char, state char...
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponReloadStart, UAnimMontage*, Anim);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponReloadEnd);
 
 UCLASS()
 class TDS_API AWeaponBase : public AActor
@@ -20,6 +24,10 @@ public:
 	// Sets default values for this actor's properties
 	AWeaponBase();
 
+	FOnWeaponReloadEnd OnWeaponReloadEnd;
+	FOnWeaponReloadStart OnWeaponReloadStart;
+
+	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcces = "true"), Category = Components)
 	class USceneComponent* SceneComponent = nullptr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcces = "true"), Category = Components)
@@ -29,8 +37,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcces = "true"), Category = Components)
 	class UArrowComponent* ShootLocation = nullptr;
 
+	// Weapon Info
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")
 	FWeaponInfo WeaponSetting;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
+	FAddicionalWeaponInfo WeaponInfo;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -39,25 +51,64 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Weapon Tick
 	void FireTick(float DeltaTime);
+	void ReloadTick(float DeltaTime);
+	void DispersionTick(float DeltaTime);
 
+	// Weapon Init
 	void WeaponInit();
 
+	// Bool Weapon State
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")
 	bool WeaponFiring = false;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReloadLogic")
+	bool WeaponReloading = false;
 	UFUNCTION(BlueprintCallable)
+	
+
+	// Weapon Functions
+	void Fire();
+	void UpdateStateWeapon(EMovementState NewMovementState);
+	void ChangeDispersionByShot();
 	void SetWeaponStateFire(bool bIsFire);
-
 	bool CheckWeaponCanFire();
-
 	FProjectileInfo GetProjectile();
 
-	void Fire();
+	// Weapon Constants
+	float GetCurrentDispersion() const;
+	FVector ApplyDispersionToShoot(FVector DirectionShoot) const;
+	FVector GetFireEndLocation() const;
+	int8 GetNumberProjectileByShot() const;
 
-	void UpdateStateWeapon(EMovementState NewMovementState);
-	void ChangeDispersion();
+	// Weapon Timers
+	float FireTimer = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReloadLogic")
+	float ReloadTimer = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReloadLogic Debug")	//Remove !!! Debug
+	float ReloadTime = 0.0f;
 
-	//Timers'flags
-	float FireTime = 0.0;
+	// Weapon Flags
+	bool BlockFire = false;
+
+	// Weapon Dispersion
+	bool ShouldReduceDispersion = false;
+	float CurrentDispersion = 0.0f;
+	float CurrentDispersionMax = 1.0f;
+	float CurrentDispersionMin = 0.1f;
+	float CurrentDispersionRecoil = 0.1f;
+	float CurrentDispersionReduction = 0.1f;
+
+	FVector ShootEndLocation = FVector(0);
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetWeaponRound();
+	void InitReload();
+	void FinishReload();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	bool ShowDebug = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	float SizeVectorToChangeShootDirectionLogic = 100.0f;
 };

@@ -14,6 +14,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/World.h"
+#include "../Game/TDSGameInstance.h"
 
 ATDSCharacter::ATDSCharacter()
 {
@@ -61,7 +62,7 @@ void ATDSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitWeapon();
+	InitWeapon(InitWeaponName);
 }
 
 void ATDSCharacter::SetupPlayerInputComponent(UInputComponent* NewInputComponent)
@@ -73,6 +74,7 @@ void ATDSCharacter::SetupPlayerInputComponent(UInputComponent* NewInputComponent
 
 	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Pressed, this, &ATDSCharacter::InputAttackPressed);
 	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Released, this, &ATDSCharacter::InputAttackReleased);
+	NewInputComponent->BindAction(TEXT("ReloadEvent"), EInputEvent::IE_Released, this, &ATDSCharacter::TryReloadWeapon);
 }
 
 void ATDSCharacter::InputAxisX(float Value)
@@ -103,6 +105,7 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 
 	// Rotation
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	FHitResult HitResult;
 	if (PlayerController)
 	{
 		FVector CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
@@ -114,7 +117,6 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 			FVector Start = CameraLocation;
 			FVector End = WorldLocation + WorldDirection * 10000.0f; // Trace Distance
 
-			FHitResult HitResult;
 			FCollisionQueryParams Params;
 			Params.AddIgnoredActor(this); // Ignore Character
 
@@ -134,6 +136,32 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 				//DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 12, FColor::Red, false, 1.0f);
 			}
 		}
+	}
+
+	// Reload Weapon Stats
+	if (CurrentWeapon)
+	{
+		FVector Displacement = FVector(0);
+		switch (MovementState)
+		{
+		case EMovementState::Aim_State:
+			Displacement = FVector(0.0f, 0.0f, 160.0f);
+			CurrentWeapon->ShouldReduceDispersion = true;
+			break;
+		case EMovementState::Walk_State:
+			Displacement = FVector(0.0f, 0.0f, 120.0f);
+			CurrentWeapon->ShouldReduceDispersion = false;
+			break;
+		case EMovementState::Run_State:
+			Displacement = FVector(0.0f, 0.0f, 120.0f);
+			CurrentWeapon->ShouldReduceDispersion = false;
+			break;
+		default:
+			break;
+		}
+
+		CurrentWeapon->ShootEndLocation = HitResult.Location + Displacement;
+		//aim cursor like 3d Widget?
 	}
 }
 
@@ -177,30 +205,18 @@ void ATDSCharacter::CharacterUpdate()
 
 void ATDSCharacter::ChangeMovementState(EMovementState NewMovementState)
 {
-	//if (SprintRunEnabled)
-	//{
-	//	WalkEnabled = false;
-	//	AimEnabled = false;
-	//	MovementState = EMovementState::SprintRun_State;
-	//}
-	//if (WalkEnabled && !SprintRunEnabled && AimEnabled)
-	//{
-	//	MovementState = EMovementState::AimWalk_State;
-	//}
-	//else
-	//{
-	//	if (WalkEnabled && !SprintRunEnabled && !AimEnabled)
-	//	{
-	//		MovementState = EMovementState::Walk_State;
-	//	}
-	//	else
-	//	{
-	//		if (!WalkEnabled && !SprintRunEnabled && AimEnabled)
-	//		{
-	//			MovementState = EMovementState::Aim_State;
-	//		}
-	//	}
-	//}
+	if (RunEnabled && !WalkEnabled && !AimEnabled)
+	{
+		MovementState = EMovementState::Run_State;
+	}
+	if (WalkEnabled && !RunEnabled && !AimEnabled)
+	{
+		MovementState = EMovementState::Walk_State;
+	}
+	if (AimEnabled && !RunEnabled && !WalkEnabled)
+	{
+		MovementState = EMovementState::Aim_State;
+	}
 
 	MovementState = NewMovementState;
 	CharacterUpdate();
@@ -219,26 +235,79 @@ AWeaponBase* ATDSCharacter::GetCurrentWeapon()
 }
 
 
-void ATDSCharacter::InitWeapon()//ToDo Init by id row by table
+void ATDSCharacter::InitWeapon(FName IdWeaponName)
 {
-	if (InitWeaponClass)
+	UTDSGameInstance* GameInstance = Cast<UTDSGameInstance>(GetGameInstance());
+	FWeaponInfo WeaponInfo;
+	if (GameInstance)
 	{
-		FVector SpawnLocation = FVector(0);
-		FRotator SpawnRotation = FRotator(0);
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		SpawnParams.Owner = GetOwner();
-		SpawnParams.Instigator = GetInstigator();
-
-		AWeaponBase* Weapon = Cast<AWeaponBase>(GetWorld()->SpawnActor(InitWeaponClass, &SpawnLocation, &SpawnRotation, SpawnParams));
-		if (Weapon)
+		if (GameInstance->GetWeaponInfoByName(IdWeaponName, WeaponInfo))
 		{
-			FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
-			Weapon->AttachToComponent(GetMesh(), Rule, FName("WeaponSocketRightHand"));
-			CurrentWeapon = Weapon;
+			if (WeaponInfo.WeaponClass)
+			{
+				FVector SpawnLocation = FVector(0);
+				FRotator SpawnRotation = FRotator(0);
 
-			Weapon->UpdateStateWeapon(MovementState);
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				SpawnParams.Owner = GetOwner();
+				SpawnParams.Instigator = GetInstigator();
+
+				AWeaponBase* Weapon = Cast<AWeaponBase>(GetWorld()->SpawnActor(WeaponInfo.WeaponClass, &SpawnLocation, &SpawnRotation, SpawnParams));
+				if (Weapon)
+				{
+					FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
+					Weapon->AttachToComponent(GetMesh(), Rule, FName("WeaponSocketRightHand"));
+					CurrentWeapon = Weapon;
+
+					Weapon->WeaponSetting = WeaponInfo;
+					Weapon->WeaponInfo.Round = WeaponInfo.MaxRound;
+					//Remove !!! Debug
+					Weapon->ReloadTime = WeaponInfo.ReloadTime;
+					Weapon->UpdateStateWeapon(MovementState);
+
+					Weapon->OnWeaponReloadStart.AddDynamic(this, &ATDSCharacter::WeaponReloadStart);
+					Weapon->OnWeaponReloadEnd.AddDynamic(this, &ATDSCharacter::WeaponReloadEnd);
+				}
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ATDSCharacter::InitWeapon - Weapon not found in table -NULL"));
 		}
 	}
+}
+
+void ATDSCharacter::TryReloadWeapon()
+{
+	if (CurrentWeapon)
+	{
+		if (CurrentWeapon->GetWeaponRound() <= CurrentWeapon->WeaponSetting.MaxRound)
+			CurrentWeapon->InitReload();
+	}
+}
+
+void ATDSCharacter::WeaponReloadStart(UAnimMontage* Anim)
+{
+	WeaponReloadStart_BP(Anim);
+}
+
+void ATDSCharacter::WeaponReloadEnd()
+{
+	WeaponReloadEnd_BP();
+}
+
+void ATDSCharacter::WeaponReloadStart_BP_Implementation(UAnimMontage* Anim)
+{
+	// in BP
+}
+
+void ATDSCharacter::WeaponReloadEnd_BP_Implementation()
+{
+	// in BP
+}
+
+UDecalComponent* ATDSCharacter::GetCursorToWorld()
+{
+	return CurrentCursor;
 }
