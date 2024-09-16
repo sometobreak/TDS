@@ -120,7 +120,7 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 			FCollisionQueryParams Params;
 			Params.AddIgnoredActor(this); // Ignore Character
 
-			bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params);
+			bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_GameTraceChannel1, Params);
 
 			// Draw Debug Line Trace
 			//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.1f, 0, 0.1f);
@@ -128,8 +128,10 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 			if (bHit)
 			{
 				FVector TargetLocation = HitResult.ImpactPoint;
-				TargetLocation.Z += 115.0f;
 				FRotator LookAtRotation = FRotationMatrix::MakeFromX(TargetLocation - GetActorLocation()).Rotator();
+				FRotator CurrentRotation = GetActorRotation();
+				LookAtRotation = FRotator(CurrentRotation.Pitch, LookAtRotation.Yaw, CurrentRotation.Roll);
+
 				SetActorRotation(LookAtRotation);
 
 				// Draw HitResult Debug Sphere 
@@ -276,6 +278,10 @@ void ATDSCharacter::InitWeapon(FName IdWeaponName)
 			UE_LOG(LogTemp, Warning, TEXT("ATDSCharacter::InitWeapon - Weapon not found in table -NULL"));
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ATDSCharacter::InitWeapon - GameInstance not found -NULL"));
+	}
 }
 
 void ATDSCharacter::TryReloadWeapon()
@@ -307,7 +313,7 @@ void ATDSCharacter::WeaponReloadEnd_BP_Implementation()
 	// in BP
 }
 
-UDecalComponent* ATDSCharacter::GetCursorToWorld()
-{
-	return CurrentCursor;
-}
+//UDecalComponent* ATDSCharacter::GetCursorToWorld()
+//{
+//	return CurrentCursor;
+//}

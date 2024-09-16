@@ -41,10 +41,10 @@ private:
 	class USpringArmComponent* CameraBoom;
 public:
 	//Cursor
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
-	UMaterialInterface* CursorMaterial = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
-	FVector CursorSize = FVector(20.0f, 40.0f, 40.0f);
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
+	//UMaterialInterface* CursorMaterial = nullptr;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
+	//FVector CursorSize = FVector(20.0f, 40.0f, 40.0f);
 
 	//Movement
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Movement")
@@ -84,8 +84,6 @@ public:
 
 	//for demo 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Demo")
-	TSubclassOf<AWeaponBase> InitWeaponClass = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Demo")
 	FName InitWeaponName;
 	UDecalComponent* CurrentCursor = nullptr;
 
@@ -110,7 +108,7 @@ public:
 	void WeaponReloadStart_BP(UAnimMontage* Anim);
 	UFUNCTION(BlueprintNativeEvent)
 	void WeaponReloadEnd_BP();
-	UFUNCTION(BlueprintCallable)
-	UDecalComponent* GetCursorToWorld();
+	//UFUNCTION(BlueprintCallable)
+	//UDecalComponent* GetCursorToWorld();
 };
 
