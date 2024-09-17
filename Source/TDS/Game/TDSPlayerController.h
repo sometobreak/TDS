@@ -19,13 +19,13 @@ protected:
 
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
-	virtual void SetupInputComponent() override;
-	// End PlayerController interface
+	//virtual void SetupInputComponent() override;
+	//// End PlayerController interface
 
-	/** Navigate player to the given world location. */
-	void SetNewMoveDestination(const FVector DestLocation);
+	///** Navigate player to the given world location. */
+	//void SetNewMoveDestination(const FVector DestLocation);
 
-	/** Input handlers for SetDestination action. */
-	void OnSetDestinationPressed();
-	void OnSetDestinationReleased();
+	///** Input handlers for SetDestination action. */
+	//void OnSetDestinationPressed();
+	//void OnSetDestinationReleased();
 };
