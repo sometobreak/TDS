@@ -230,11 +230,6 @@ void AWeaponBase::UpdateStateWeapon(EMovementState NewMovementState)
 		CurrentDispersionRecoil = WeaponSetting.DispersionWeapon.Run_StateDispersionAimRecoil;
 		CurrentDispersionReduction = WeaponSetting.DispersionWeapon.Aim_StateDispersionReduction;
 		break;
-	//case EMovementState::SprintRun_State:
-	//	BlockFire = true;
-	//	SetWeaponStateFire(false);//set fire trigger to false
-	//	//Block Fire
-	//	break;
 	default:
 		break;
 	}

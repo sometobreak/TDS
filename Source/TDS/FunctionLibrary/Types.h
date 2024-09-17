@@ -84,15 +84,6 @@ struct FWeaponDispersion
 	float Aim_StateDispersionReduction = .3f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
-	float AimWalk_StateDispersionAimMax = 1.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
-	float AimWalk_StateDispersionAimMin = 0.1f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
-	float AimWalk_StateDispersionAimRecoil = 1.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
-	float AimWalk_StateDispersionReduction = 0.4f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
 	float Walk_StateDispersionAimMax = 5.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
 	float Walk_StateDispersionAimMin = 1.0f;
@@ -137,6 +128,8 @@ struct FWeaponInfo : public FTableRowBase
 	USoundBase* SoundReloadWeapon = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FX ")
 	UParticleSystem* EffectFireWeapon = nullptr;
+
+
 	//if null use trace logic (TSubclassOf<class AProjectileBase> Projectile = nullptr)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile ")
 	FProjectileInfo ProjectileSetting;
