@@ -89,6 +89,7 @@ void ATDSCharacter::InputAxisY(float Value)
 
 void ATDSCharacter::InputAttackPressed()
 {
+	UE_LOG(LogTemp, Warning, TEXT("InputAttackPressed called"));
 	AttackCharEvent(true);
 }
 
@@ -100,8 +101,16 @@ void ATDSCharacter::InputAttackReleased()
 void ATDSCharacter::MovementTick(float DeltaTime)
 {
 	// Movement
-	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), AxisX);
-	AddMovementInput(FVector(0.0f, 1.0f, 0.0f), AxisY);
+	if (RunEnabled)
+	{
+		FVector ForwardVector = GetActorForwardVector();
+		AddMovementInput(ForwardVector, 1);
+	}
+	else
+	{
+		AddMovementInput(FVector(1.0f, 0.0f, 0.0f), AxisX);
+		AddMovementInput(FVector(0.0f, 1.0f, 0.0f), AxisY);
+	}
 
 	// Rotation
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
@@ -233,7 +242,7 @@ void ATDSCharacter::ChangeMovementState(EMovementState NewMovementState)
 
 AWeaponBase* ATDSCharacter::GetCurrentWeapon()
 {
-	return CurrentWeapon;;
+	return CurrentWeapon;
 }
 
 
