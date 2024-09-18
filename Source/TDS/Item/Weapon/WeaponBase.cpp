@@ -225,10 +225,8 @@ void AWeaponBase::UpdateStateWeapon(EMovementState NewMovementState)
 		break;
 	case EMovementState::Run_State:
 
-		CurrentDispersionMax = WeaponSetting.DispersionWeapon.Run_StateDispersionAimMax;
-		CurrentDispersionMin = WeaponSetting.DispersionWeapon.Run_StateDispersionAimMin;
-		CurrentDispersionRecoil = WeaponSetting.DispersionWeapon.Run_StateDispersionAimRecoil;
-		CurrentDispersionReduction = WeaponSetting.DispersionWeapon.Aim_StateDispersionReduction;
+		BlockFire = true;
+		SetWeaponStateFire(false);
 		break;
 	default:
 		break;
@@ -304,6 +302,8 @@ void AWeaponBase::InitReload()
 	WeaponReloading = true;
 
 	ReloadTimer = WeaponSetting.ReloadTime;
+
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), WeaponSetting.SoundReloadWeapon, ShootLocation->GetComponentLocation());
 
 	//ToDo Anim reload
 	if (WeaponSetting.AnimCharReload)

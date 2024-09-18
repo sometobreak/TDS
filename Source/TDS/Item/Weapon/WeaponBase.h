@@ -107,7 +107,7 @@ public:
 	void FinishReload();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	bool ShowDebug = false;
+	bool ShowDebug = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	float SizeVectorToChangeShootDirectionLogic = 100.0f;
