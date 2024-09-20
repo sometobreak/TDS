@@ -70,12 +70,17 @@ void AProjectileBase::BulletCollisionSphereHit(UPrimitiveComponent* HitComp, AAc
 {
 	if (OtherActor && Hit.PhysMaterial.IsValid())
 	{
+		FString Loc = OtherActor->GetClass()->GetName();
+		UE_LOG(LogTemp, Warning, TEXT("OtherActor!!!!  "), *Loc);
 		EPhysicalSurface SurfaceType = UGameplayStatics::GetSurfaceType(Hit);
 
 		if (ProjectileSetting.HitDecals.Contains(SurfaceType))
 		{
+
 			UMaterialInterface* Material = ProjectileSetting.HitDecals[SurfaceType];
 
+			Loc = UEnum::GetValueAsString(SurfaceType);
+			UE_LOG(LogTemp, Warning, TEXT("SurfaceType!!!!  "), *Loc);
 			if (Material && OtherComp)
 			{
 				UGameplayStatics::SpawnDecalAttached(Material, FVector(20.0f), OtherComp, NAME_None, Hit.ImpactPoint, Hit.ImpactNormal.Rotation(), EAttachLocation::KeepWorldPosition, 10.0f);
@@ -83,7 +88,11 @@ void AProjectileBase::BulletCollisionSphereHit(UPrimitiveComponent* HitComp, AAc
 		}
 		if (ProjectileSetting.HitFXs.Contains(SurfaceType))
 		{
+
 			UParticleSystem* Particle = ProjectileSetting.HitFXs[SurfaceType];
+
+			Loc = Particle->GetClass()->GetName();
+			UE_LOG(LogTemp, Warning, TEXT("Particle!!!!  "), *Loc);
 			if (Particle)
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Particle, FTransform(Hit.ImpactNormal.Rotation(), Hit.ImpactPoint, FVector(1.0f)));
@@ -95,9 +104,16 @@ void AProjectileBase::BulletCollisionSphereHit(UPrimitiveComponent* HitComp, AAc
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), ProjectileSetting.HitSound, Hit.ImpactPoint);
 		}
 
+		UGameplayStatics::ApplyDamage(OtherActor, ProjectileSetting.ProjectileDamage, GetInstigatorController(), this, NULL);
+
+		if (UEnum::GetValueAsString(SurfaceType) != "SurfaceType5")
+		{
+			ImpactProjectile();
+		}
 	}
-	UGameplayStatics::ApplyDamage(OtherActor, ProjectileSetting.ProjectileDamage, GetInstigatorController(), this, NULL);
-	ImpactProjectile();
+
+	
+
 	//UGameplayStatics::ApplyRadialDamageWithFalloff()
 	//Apply damage cast to if char like bp? //OnAnyTakeDmage delegate
 	//UGameplayStatics::ApplyDamage(OtherActor, ProjectileSetting.ProjectileDamage, GetOwner()->GetInstigatorController(), GetOwner(), NULL);
