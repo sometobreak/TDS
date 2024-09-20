@@ -36,6 +36,10 @@ public:
 	class UStaticMeshComponent* WeaponStaticMesh = nullptr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcces = "true"), Category = Components)
 	class UArrowComponent* ShootLocation = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcces = "true"), Category = Components)
+	class UArrowComponent* MagazineDropLocation = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcces = "true"), Category = Components)
+	class UArrowComponent* ShellBulletLocation = nullptr;
 
 	// Weapon Info
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")

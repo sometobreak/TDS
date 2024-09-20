@@ -28,6 +28,12 @@ AWeaponBase::AWeaponBase()
 
 	ShootLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("ShootLocation"));
 	ShootLocation->SetupAttachment(RootComponent);
+
+	MagazineDropLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("MagazineDropLocation"));
+	MagazineDropLocation->SetupAttachment(RootComponent);
+
+	ShellBulletLocation = CreateDefaultSubobject<UArrowComponent>(TEXT("ShellBulletLocation"));
+	ShellBulletLocation->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -160,8 +166,8 @@ void AWeaponBase::Fire()
 
 	if (ShootLocation)
 	{
-		FVector SpawnLocation = ShootLocation->GetComponentLocation();
-		FRotator SpawnRotation = ShootLocation->GetComponentRotation();
+		FVector SpawnShootLocation = ShootLocation->GetComponentLocation();
+		FRotator SpawnShootRotation = ShootLocation->GetComponentRotation();
 		FProjectileInfo ProjectileInfo;
 		ProjectileInfo = GetProjectile();
 
@@ -170,23 +176,23 @@ void AWeaponBase::Fire()
 		{
 			EndLocation = GetFireEndLocation();
 
-			FVector Dir = EndLocation - SpawnLocation;
+			FVector Dir = EndLocation - SpawnShootLocation;
 
 			Dir.Normalize();
 
 			FMatrix myMatrix(Dir, FVector(0, 1, 0), FVector(0, 0, 1), FVector::ZeroVector);
-			SpawnRotation = myMatrix.Rotator();
+			SpawnShootRotation = myMatrix.Rotator();
 
 			if (ProjectileInfo.Projectile)
 			{
 				//Projectile Init ballistic fire
 
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-				SpawnParams.Owner = GetOwner();
-				SpawnParams.Instigator = GetInstigator();
+				FActorSpawnParameters SpawnShootParams;
+				SpawnShootParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				SpawnShootParams.Owner = GetOwner();
+				SpawnShootParams.Instigator = GetInstigator();
 
-				AProjectileBase* WeaponProjectile = Cast<AProjectileBase>(GetWorld()->SpawnActor(ProjectileInfo.Projectile, &SpawnLocation, &SpawnRotation, SpawnParams));
+				AProjectileBase* WeaponProjectile = Cast<AProjectileBase>(GetWorld()->SpawnActor(ProjectileInfo.Projectile, &SpawnShootLocation, &SpawnShootRotation, SpawnShootParams));
 				if (WeaponProjectile)
 				{
 					WeaponProjectile->InitProjectile(WeaponSetting.ProjectileSetting);
@@ -198,6 +204,28 @@ void AWeaponBase::Fire()
 
 				//GetWorld()->LineTraceSingleByChannel()
 			}
+		}
+	}
+
+	if (ShellBulletLocation)
+	{
+		FVector SpawnLocation = ShellBulletLocation->GetComponentLocation();
+		FRotator SpawnRotation = ShellBulletLocation->GetComponentRotation();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Owner = GetOwner();
+		SpawnParams.Instigator = GetInstigator();
+
+		AProjectileBase* ShellBullet = Cast<AProjectileBase>(GetWorld()->SpawnActor(WeaponSetting.ShellBullets, &SpawnLocation, &SpawnRotation, SpawnParams));//if (myProjectile)
+		if (ShellBullet)
+		{
+			FString Loc = ShellBulletLocation->GetComponentLocation().ToString();
+			UE_LOG(LogTemp, Warning, TEXT("ShellBulletLocation droop DROP DROP DROP%s"), *Loc);
+
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to spawn ShellBullet"));
 		}
 	}
 }
@@ -303,7 +331,32 @@ void AWeaponBase::InitReload()
 
 	ReloadTimer = WeaponSetting.ReloadTime;
 
+	// Sound
 	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), WeaponSetting.SoundReloadWeapon, ShootLocation->GetComponentLocation());
+
+	// Magazine Drop
+	if (MagazineDropLocation)
+	{
+		FVector SpawnLocation = MagazineDropLocation->GetComponentLocation();
+		FRotator SpawnRotation = MagazineDropLocation->GetComponentRotation();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Owner = GetOwner();
+		SpawnParams.Instigator = GetInstigator();
+
+		AProjectileBase* Magazine = Cast<AProjectileBase>(GetWorld()->SpawnActor(WeaponSetting.MagazineDrop, &SpawnLocation, &SpawnRotation, SpawnParams));//if (myProjectile)
+
+		if (Magazine)
+		{
+			FString Loc = MagazineDropLocation->GetComponentLocation().ToString();
+			UE_LOG(LogTemp, Warning, TEXT("Magazine droop DROP DROP DROP%s"), *Loc);
+
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to spawn Magazine"));
+		}
+	}
 
 	//ToDo Anim reload
 	if (WeaponSetting.AnimCharReload)

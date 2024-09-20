@@ -146,10 +146,15 @@ struct FWeaponInfo : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim ")
 	UAnimMontage* AnimCharReload = nullptr;
 
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh ")
+	//UStaticMesh* MagazineDrop = nullptr;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh ")
+	//UStaticMesh* ShellBullets = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh ")
-	UStaticMesh* MagazineDrop = nullptr;
+	TSubclassOf<class AProjectileBase> MagazineDrop = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh ")
-	UStaticMesh* ShellBullets = nullptr;
+	TSubclassOf<class AProjectileBase> ShellBullets = nullptr;
 
 };
 
