@@ -199,9 +199,34 @@ void AWeaponBase::Fire()
 				}
 			}
 			else
-			{
-				//ToDo Projectile null Init trace fire			
+			{		
+				// Projectile is null, perform line trace fire
+				// Projectile is null, perform line trace fire
+				FHitResult HitResult;
+				bool bHit = GetWorld()->LineTraceSingleByChannel(
+					HitResult,
+					SpawnShootLocation,
+					EndLocation,
+					ECC_Visibility, // Канал трассировки, можно настроить в редакторе
+					FCollisionQueryParams(SCENE_QUERY_STAT(LineTraceSingle), true, this)
+				);
 
+				if (bHit)
+				{
+					// Обработка попадания
+					UE_LOG(LogTemp, Log, TEXT("Hit Actor: %s"), *HitResult.Actor->GetName());
+
+					// Опционально, создание эффектов в месте попадания
+					//if (ProjectileInfo.HitFXs.Contains["SurfaceType4"])
+					//{
+					//	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ProjectileInfo.HitFXs.Contains["SurfaceType4"], HitResult.Location);
+					//}
+
+					if (ProjectileInfo.HitSound)
+					{
+						UGameplayStatics::PlaySoundAtLocation(GetWorld(), ProjectileInfo.HitSound, HitResult.Location);
+					}
+				}
 				//GetWorld()->LineTraceSingleByChannel()
 			}
 		}
