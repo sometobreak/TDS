@@ -106,13 +106,17 @@ void AProjectileBase::BulletCollisionSphereHit(UPrimitiveComponent* HitComp, AAc
 
 		UGameplayStatics::ApplyDamage(OtherActor, ProjectileSetting.ProjectileDamage, GetInstigatorController(), this, NULL);
 
-		if (UEnum::GetValueAsString(SurfaceType) != "SurfaceType5")
+		if (UEnum::GetValueAsString(SurfaceType) == "SurfaceType5")
 		{
-			ImpactProjectile();
+			IsMetalMaterial = true;
+		}
+		else
+		{
+			IsMetalMaterial = false;
 		}
 	}
 
-	
+	ImpactProjectile();
 
 	//UGameplayStatics::ApplyRadialDamageWithFalloff()
 	//Apply damage cast to if char like bp? //OnAnyTakeDmage delegate
@@ -131,5 +135,8 @@ void AProjectileBase::BulletCollisionSphereEndOverlap(UPrimitiveComponent* Overl
 
 void AProjectileBase::ImpactProjectile()
 {
-	this->Destroy();
+	if (!IsMetalMaterial)
+	{
+		this->Destroy();
+	}
 }

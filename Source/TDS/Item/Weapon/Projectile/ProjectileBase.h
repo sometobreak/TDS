@@ -36,6 +36,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	bool IsMetalMaterial = false;
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
