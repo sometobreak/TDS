@@ -12,11 +12,8 @@ AProjectileBase::AProjectileBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	BulletCollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Sphere"));
-
 	BulletCollisionSphere->SetSphereRadius(16.f);
-
 	BulletCollisionSphere->bReturnMaterialOnMove = true;//hit event return physMaterial
-
 	BulletCollisionSphere->SetCanEverAffectNavigation(false);//collision not affect navigation (P keybord on editor)
 
 	RootComponent = BulletCollisionSphere;
@@ -59,6 +56,14 @@ void AProjectileBase::Tick(float DeltaTime)
 
 void AProjectileBase::InitProjectile(FProjectileInfo InitParam)
 {
+	if (InitParam.BulletMesh)
+	{
+		BulletMesh->SetStaticMesh(InitParam.BulletMesh);
+	}
+	if (InitParam.BulletFX)
+	{
+		BulletFX->SetTemplate(InitParam.BulletFX);
+	}
 	BulletProjectileMovement->InitialSpeed = InitParam.ProjectileInitSpeed;
 	BulletProjectileMovement->MaxSpeed = InitParam.ProjectileInitSpeed;
 	this->SetLifeSpan(InitParam.ProjectileLifeTime);

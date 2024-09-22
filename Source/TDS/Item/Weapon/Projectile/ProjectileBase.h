@@ -41,6 +41,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Explose Timers
+	bool TimerEnabled = false;
+	float TimerToExplose = 0.0f;
+
+
 	void InitProjectile(FProjectileInfo InitParam);
 	UFUNCTION()
 	virtual void BulletCollisionSphereHit(class UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
@@ -51,4 +56,8 @@ public:
 
 	UFUNCTION()
 	virtual void ImpactProjectile();
+
+	// Debug
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	bool ShowDebug = true;
 };

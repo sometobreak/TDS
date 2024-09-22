@@ -3,6 +3,7 @@
 
 #include "ProjectileBase_Grenade.h"
 #include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 
 void AProjectileBase_Grenade::BeginPlay()
 {
@@ -22,11 +23,10 @@ void AProjectileBase_Grenade::TimerExplose(float DeltaTime)
 {
 	if (TimerEnabled)
 	{
-		if (TimerToExplose > TimeToExplose)
+		if (TimerToExplose > ProjectileSetting.TimeToExplose)
 		{
 			//Explose
 			Explose();
-			
 		}
 		else
 		{
@@ -61,12 +61,30 @@ void AProjectileBase_Grenade::Explose()
 	TArray<AActor*> IgnoredActor;
 	UGameplayStatics::ApplyRadialDamageWithFalloff(GetWorld(),
 		ProjectileSetting.ExploseMaxDamage,
-		ProjectileSetting.ExploseMaxDamage*0.2f,
+		ProjectileSetting.ExploseMaxDamage * ProjectileSetting.DamageReduction,
 		GetActorLocation(),
-		1000.0f,
-		2000.0f,
+		ProjectileSetting.MaxDamageRadius,
+		ProjectileSetting.ExploseRadius,
 		5,
 		NULL, IgnoredActor,nullptr,nullptr);
 
 	this->Destroy();
+
+	// Debug
+	if (ShowDebug)
+	{
+		FVector SphereCenter = GetActorLocation();
+		int32 Segments = 12;
+		FColor MaxDamageSphereColor = FColor::Red;
+		FColor ExploseSphereColor = FColor::Yellow;
+		bool bPersistentLines = false;
+		float LifeTime = 2.0f;
+		float Thickness = 1.0f;
+
+		// Max Damage Sphere
+		DrawDebugSphere(GetWorld(), SphereCenter, ProjectileSetting.ExploseRadius, Segments, ExploseSphereColor, bPersistentLines, LifeTime, 0, Thickness);
+
+		// Explose sphere
+		DrawDebugSphere(GetWorld(), SphereCenter, ProjectileSetting.MaxDamageRadius, Segments, MaxDamageSphereColor, bPersistentLines, LifeTime, 0, Thickness);
+	}
 }

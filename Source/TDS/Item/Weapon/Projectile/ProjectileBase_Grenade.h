@@ -22,16 +22,11 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 	void TimerExplose(float DeltaTime);
 
+	// Override
 	virtual void BulletCollisionSphereHit(class UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
-	
 	virtual void ImpactProjectile() override;
 
 	void Explose();
-
-	bool TimerEnabled = false;
-	float TimerToExplose = 0.0f;
-	float TimeToExplose = 3.0f;
 };

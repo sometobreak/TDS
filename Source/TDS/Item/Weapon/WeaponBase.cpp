@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
 
 // Sets default values
 AWeaponBase::AWeaponBase()
@@ -201,30 +202,65 @@ void AWeaponBase::Fire()
 			else
 			{		
 				// Projectile is null, perform line trace fire
-				// Projectile is null, perform line trace fire
 				FHitResult HitResult;
 				bool bHit = GetWorld()->LineTraceSingleByChannel(
 					HitResult,
 					SpawnShootLocation,
 					EndLocation,
-					ECC_Visibility, // Канал трассировки, можно настроить в редакторе
+					ECC_Visibility, // РљР°РЅР°Р» С‚СЂР°СЃСЃРёСЂРѕРІРєРё, РјРѕР¶РЅРѕ РЅР°СЃС‚СЂРѕРёС‚СЊ РІ СЂРµРґР°РєС‚РѕСЂРµ
 					FCollisionQueryParams(SCENE_QUERY_STAT(LineTraceSingle), true, this)
 				);
 
+				FActorSpawnParameters SpawnFXParams;
+				SpawnFXParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				SpawnFXParams.Owner = GetOwner();
+				SpawnFXParams.Instigator = GetInstigator();
+				UParticleSystem* BulletFX = ProjectileInfo.BulletFX;
+
+				if (BulletFX)
+				{
+					FVector Offset = ShootLocation->GetForwardVector() * 50.0f;
+					FVector FXLocation = ShootLocation->GetComponentLocation() + Offset;
+
+					UParticleSystemComponent* BulletFXComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletFX, FXLocation, ShootLocation->GetComponentRotation());
+					if (BulletFXComponent)
+					{
+						FTimerHandle TimerHandle;
+						GetWorld()->GetTimerManager().SetTimer(TimerHandle, [BulletFXComponent]()
+						{
+							BulletFXComponent->DestroyComponent();
+						}, 0.15f, false);
+					}
+				}
+
 				if (bHit)
 				{
-					// Обработка попадания
-					UE_LOG(LogTemp, Log, TEXT("Hit Actor: %s"), *HitResult.Actor->GetName());
+					EPhysicalSurface SurfaceType = UGameplayStatics::GetSurfaceType(HitResult);
+	
+					if (ProjectileInfo.HitDecals.Contains(SurfaceType))
+					{
 
-					// Опционально, создание эффектов в месте попадания
-					//if (ProjectileInfo.HitFXs.Contains["SurfaceType4"])
-					//{
-					//	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ProjectileInfo.HitFXs.Contains["SurfaceType4"], HitResult.Location);
-					//}
+						UMaterialInterface* Material = ProjectileInfo.HitDecals[SurfaceType];
+
+						if (Material)
+						{
+							UGameplayStatics::SpawnDecalAttached(Material, FVector(20.0f), nullptr, NAME_None, HitResult.ImpactPoint, HitResult.ImpactNormal.Rotation(), EAttachLocation::KeepWorldPosition, 10.0f);
+						}
+					}
 
 					if (ProjectileInfo.HitSound)
 					{
 						UGameplayStatics::PlaySoundAtLocation(GetWorld(), ProjectileInfo.HitSound, HitResult.Location);
+					}
+					
+					if (ProjectileInfo.HitFXs.Contains(SurfaceType))
+					{
+
+						UParticleSystem* Particle = ProjectileInfo.HitFXs[SurfaceType];
+						if (Particle)
+						{
+							UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Particle, FTransform(HitResult.ImpactNormal.Rotation(), HitResult.ImpactPoint, FVector(1.0f)));
+						}
 					}
 				}
 				//GetWorld()->LineTraceSingleByChannel()

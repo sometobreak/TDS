@@ -41,8 +41,12 @@ struct FProjectileInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectileSetting")
 	TSubclassOf<class AProjectileBase> Projectile = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectileSetting")
-	float ProjectileDamage = 20.0f;
+	class UStaticMesh* BulletMesh = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectileSetting")
+	class UParticleSystem* BulletFX = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectileSetting")
+	float ProjectileDamage = 20.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectileSetting")
 	float ProjectileLifeTime = 20.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectileSetting")
@@ -67,6 +71,16 @@ struct FProjectileInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ProjectileSetting")
 	float ExploseMaxDamage = 40.0f;
 	//Timer add
+
+	// Explose Settings
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ExploseSetting")
+	float TimeToExplose = 3.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ExploseSetting")
+	float DamageReduction = 0.5f; // 50% reduction damage
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ExploseSetting")
+	float MaxDamageRadius = 150.f; // epicenter
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ExploseSetting")
+	float ExploseRadius = 300.5f; 
 };
 
 USTRUCT(BlueprintType)
@@ -91,15 +105,6 @@ struct FWeaponDispersion
 	float Walk_StateDispersionAimRecoil = 1.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
 	float Walk_StateDispersionReduction = 0.2f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
-	float Run_StateDispersionAimMax = 10.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
-	float Run_StateDispersionAimMin = 4.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
-	float Run_StateDispersionAimRecoil = 1.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dispersion ")
-	float Run_StateDispersionReduction = 0.1f;
 };
 
 USTRUCT(BlueprintType)
