@@ -26,6 +26,9 @@ Content/NotUsed/
 
 Content/Characters/Ozul
 
+Source/TDS/Character/HeroBase.h
+Source/TDS/Character/HeroBase.cpp
+
 Screenshots/
 SourceFiles/
 Builds/
