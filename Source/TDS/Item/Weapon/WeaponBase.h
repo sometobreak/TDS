@@ -66,11 +66,11 @@ public:
 	// Bool Weapon State
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")
 	bool WeaponFiring = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")
+	bool isShot = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReloadLogic")
 	bool WeaponReloading = false;
-	UFUNCTION(BlueprintCallable)
 	
-
 	// Weapon Functions
 	void Fire();
 	void UpdateStateWeapon(EMovementState NewMovementState);
@@ -86,6 +86,7 @@ public:
 	int8 GetNumberProjectileByShot() const;
 
 	// Weapon Timers
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")
 	float FireTimer = 0.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReloadLogic")
 	float ReloadTimer = 0.0f;

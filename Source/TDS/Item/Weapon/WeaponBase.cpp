@@ -59,14 +59,19 @@ void AWeaponBase::FireTick(float DeltaTime)
 {
 	if (GetWeaponRound() > 0)
 	{
-		if (WeaponFiring)
-			if (FireTimer < 0.f)
+		
+		if (FireTimer <= 0.0f)
+			if (WeaponFiring)
 			{
 				if (!WeaponReloading)
+				{
 					Fire();
+				}
 			}
 			else
 				FireTimer -= DeltaTime;
+		else
+			FireTimer -= DeltaTime;
 	}
 	else
 	{
@@ -141,7 +146,6 @@ void AWeaponBase::SetWeaponStateFire(bool bIsFire)
 		WeaponFiring = bIsFire;
 	else
 		WeaponFiring = false;
-		FireTimer = 0.01f;
 }
 
 bool AWeaponBase::CheckWeaponCanFire()
