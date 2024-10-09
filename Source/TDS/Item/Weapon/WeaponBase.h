@@ -11,7 +11,7 @@
 
 #include "WeaponBase.generated.h"
 
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponFireStart);//ToDo Delegate on event weapon fire - Anim char, state char...
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponFireStart, UAnimMontage*, Anim);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponReloadStart, UAnimMontage*, Anim);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponReloadEnd);
 
@@ -24,8 +24,9 @@ public:
 	// Sets default values for this actor's properties
 	AWeaponBase();
 
-	FOnWeaponReloadEnd OnWeaponReloadEnd;
+	FOnWeaponFireStart OnWeaponFireStart;
 	FOnWeaponReloadStart OnWeaponReloadStart;
+	FOnWeaponReloadEnd OnWeaponReloadEnd;
 
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAcces = "true"), Category = Components)
@@ -59,6 +60,8 @@ public:
 	void FireTick(float DeltaTime);
 	void ReloadTick(float DeltaTime);
 	void DispersionTick(float DeltaTime);
+	void MagazineDropTick(float DeltaTime);
+	void ShellDropTick(float DeltaTime);
 
 	// Weapon Init
 	void WeaponInit();
@@ -67,7 +70,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")
 	bool WeaponFiring = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")
-	bool isShot = false;
+	bool WeaponAiming = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReloadLogic")
 	bool WeaponReloading = false;
 	
@@ -78,6 +81,7 @@ public:
 	void SetWeaponStateFire(bool bIsFire);
 	bool CheckWeaponCanFire();
 	FProjectileInfo GetProjectile();
+	void InitDropMesh(UStaticMesh* DropMesh, FTransform Offset, FVector DropImpulseDirection, float LifeTimeMesh, float ImpulseRandomDispersion, float PowerImpulse, float CustomMass);
 
 	// Weapon Constants
 	float GetCurrentDispersion() const;
@@ -92,9 +96,13 @@ public:
 	float ReloadTimer = 0.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ReloadLogic Debug")	//Remove !!! Debug
 	float ReloadTime = 0.0f;
+	float MagazineDropTimer = -1.0f;
+	float ShellDropTimer = -1.0f;
 
 	// Weapon Flags
 	bool BlockFire = false;
+	bool MagazineDropFlag = false;
+	bool ShellDropFlag = false;
 
 	// Weapon Dispersion
 	bool ShouldReduceDispersion = false;
@@ -116,4 +124,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	float SizeVectorToChangeShootDirectionLogic = 100.0f;
+
+	//Func
+
 };

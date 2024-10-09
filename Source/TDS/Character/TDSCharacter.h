@@ -101,9 +101,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void TryReloadWeapon();
 	UFUNCTION()
+	void WeaponFireStart(UAnimMontage* Anim);
+	UFUNCTION()
 	void WeaponReloadStart(UAnimMontage* Anim);
 	UFUNCTION()
 	void WeaponReloadEnd();
+	UFUNCTION(BlueprintNativeEvent)
+	void WeaponFireStart_BP(UAnimMontage* Anim);
 	UFUNCTION(BlueprintNativeEvent)
 	void WeaponReloadStart_BP(UAnimMontage* Anim);
 	UFUNCTION(BlueprintNativeEvent)
