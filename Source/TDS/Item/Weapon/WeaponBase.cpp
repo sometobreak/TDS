@@ -491,7 +491,7 @@ void AWeaponBase::InitDropMesh(UStaticMesh* DropMesh, FTransform Offset, FVector
 		FTransform Transform;
 		FVector LocalDir = this->GetActorForwardVector() * Offset.GetLocation().X + this->GetActorRightVector() * Offset.GetLocation().Y + this->GetActorUpVector() * Offset.GetLocation().Z;
 		
-		Transform.SetLocation(GetActorLocation() = LocalDir);
+		Transform.SetLocation(GetActorLocation() - LocalDir);
 		Transform.SetScale3D(Offset.GetScale3D());
 		Transform.SetRotation((GetActorRotation() + Offset.Rotator()).Quaternion());
 
