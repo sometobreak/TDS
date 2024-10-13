@@ -122,6 +122,7 @@ public:
 	void WeaponReloadEnd_BP();
 
 	//Invertory Functions
+	void TrySwitchWeapon(float Axis);
 	void TrySwitchNextWeapon();
 	void TrySwitchPreviosWeapon();
 

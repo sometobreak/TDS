@@ -82,8 +82,7 @@ void ATDSCharacter::SetupPlayerInputComponent(UInputComponent* NewInputComponent
 	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Released, this, &ATDSCharacter::InputAttackReleased);
 	NewInputComponent->BindAction(TEXT("ReloadEvent"), EInputEvent::IE_Released, this, &ATDSCharacter::TryReloadWeapon);
 
-	NewInputComponent->BindAction(TEXT("SwitchNextWeapon"), EInputEvent::IE_Pressed, this, &ATDSCharacter::TrySwitchNextWeapon);
-	NewInputComponent->BindAction(TEXT("SwitchPreviosWeapon"), EInputEvent::IE_Released, this, &ATDSCharacter::TrySwitchPreviosWeapon);
+	NewInputComponent->BindAxis(TEXT("SwitchWeaponEvent"), this, &ATDSCharacter::TrySwitchWeapon);
 	//NewInputComponent->BindAction(TEXT("GetFirstWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetFirstWeaponSlot);
 	//NewInputComponent->BindAction(TEXT("GetSecondWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetSecondWeaponSlot);
 	//NewInputComponent->BindAction(TEXT("GetThirdWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetThirdWeaponSlot);
@@ -271,12 +270,12 @@ void ATDSCharacter::InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponA
 	}
 
 	UTDSGameInstance* GameInstance = Cast<UTDSGameInstance>(GetGameInstance());
-	FWeaponInfo WeaponInfo;
+	FWeaponInfo WeaponSetting;
 	if (GameInstance)
 	{
-		if (GameInstance->GetWeaponInfoByName(IdWeaponName, WeaponInfo))
+		if (GameInstance->GetWeaponInfoByName(IdWeaponName, WeaponSetting))
 		{
-			if (WeaponInfo.WeaponClass)
+			if (WeaponSetting.WeaponClass)
 			{
 				FVector SpawnLocation = FVector(0);
 				FRotator SpawnRotation = FRotator(0);
@@ -286,22 +285,23 @@ void ATDSCharacter::InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponA
 				SpawnParams.Owner = GetOwner();
 				SpawnParams.Instigator = GetInstigator();
 
-				AWeaponBase* Weapon = Cast<AWeaponBase>(GetWorld()->SpawnActor(WeaponInfo.WeaponClass, &SpawnLocation, &SpawnRotation, SpawnParams));
+				AWeaponBase* Weapon = Cast<AWeaponBase>(GetWorld()->SpawnActor(WeaponSetting.WeaponClass, &SpawnLocation, &SpawnRotation, SpawnParams));
 				if (Weapon)
 				{
 					FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
 					Weapon->AttachToComponent(GetMesh(), Rule, FName("WeaponSocketRightHand"));
 					CurrentWeapon = Weapon;
 
-					Weapon->WeaponSetting = WeaponInfo;
-					Weapon->WeaponInfo.Round = WeaponInfo.MaxRound;
+					Weapon->WeaponSetting = WeaponSetting;
+					Weapon->WeaponInfo.Round = WeaponSetting.MaxRound;
 					//Remove !!! Debug
-					Weapon->ReloadTime = WeaponInfo.ReloadTime;
+					Weapon->ReloadTime = WeaponSetting.ReloadTime;
 					Weapon->UpdateStateWeapon(MovementState);
 
 					Weapon->WeaponInfo = WeaponAdditionalInfo;
 					if (InventoryComponent)
 						CurrentIndexWeapon = InventoryComponent->GetWeaponIndexSlotByName(IdWeaponName);
+
 
 					Weapon->OnWeaponFireStart.AddDynamic(this, &ATDSCharacter::WeaponFireStart);
 					Weapon->OnWeaponReloadStart.AddDynamic(this, &ATDSCharacter::WeaponReloadStart);
@@ -360,6 +360,20 @@ void ATDSCharacter::WeaponReloadEnd_BP_Implementation()
 	// in BP
 }
 
+void ATDSCharacter::TrySwitchWeapon(float Axis)
+{
+	if (Axis > 0)
+	{
+		TrySwitchNextWeapon();
+		UE_LOG(LogTemp, Warning, TEXT("TrySwitchNextWeapon called"));
+	}
+	else if (Axis < 0)
+	{
+		TrySwitchPreviosWeapon();
+		UE_LOG(LogTemp, Warning, TEXT("TrySwitchPreviosWeapon called"));
+	}
+}
+
 void ATDSCharacter::TrySwitchNextWeapon()
 {
 	if (InventoryComponent->WeaponSlots.Num() > 1)
@@ -376,10 +390,12 @@ void ATDSCharacter::TrySwitchNextWeapon()
 
 		if (InventoryComponent)
 		{
+
 			if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon + 1, OldIndex, OldInfo))
 			{
 
 			}
+
 		}
 	}
 }
@@ -398,12 +414,15 @@ void ATDSCharacter::TrySwitchPreviosWeapon()
 				//CurrentWeapon->CancelReload();
 		}
 
+
 		if (InventoryComponent)
 		{
+
 			if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon - 1, OldIndex, OldInfo))
 			{
 
 			}
+
 		}
 	}
 }

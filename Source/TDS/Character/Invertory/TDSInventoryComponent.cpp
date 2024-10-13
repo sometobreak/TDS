@@ -95,15 +95,68 @@ bool UTDSInventoryComponent::SwitchWeaponToIndex(int32 ChangeToIndex, int32 OldI
 
 int32 UTDSInventoryComponent::GetWeaponIndexSlotByName(FName IdWeaponName)
 {
+	int32 result = -1;
+	int8 i = 0;
+	bool bIsFind = false;
+	while (i < WeaponSlots.Num() && !bIsFind)
+	{
+		if (WeaponSlots[i].NameItem == IdWeaponName)
+		{
+			bIsFind = true;
+			result = WeaponSlots[i].IndexSlot;
+		}
+		i++;
+	}
 	return int32();
 }
 
 FAdditionalWeaponInfo UTDSInventoryComponent::GetAdditionalInfoWeapon(int32 IndexWeapon)
 {
-	return FAdditionalWeaponInfo();
+	FAdditionalWeaponInfo result;
+	if (WeaponSlots.IsValidIndex(IndexWeapon))
+	{
+		bool bIsFind = false;
+		int8 i = 0;
+		while (i < WeaponSlots.Num() && !bIsFind)
+		{
+			if (WeaponSlots[i].IndexSlot == IndexWeapon)
+			{
+				result = WeaponSlots[i].AdditionalInfo;
+				bIsFind = true;
+			}
+			i++;
+		}
+		if (!bIsFind)
+			UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::GetAdditionalInfoWeapon  -  NOT FOUND WEAPON WITH INDEX - %d"), IndexWeapon);
+	}
+	else
+
+		UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::GetAdditionalInfoWeapon  -  NOT CORRECT WEAPON INDEX - %d"), IndexWeapon);
+
+	return result;
 }
 
 void UTDSInventoryComponent::SetAdditionalWeaponInfo(int32 IndexWeapon, FAdditionalWeaponInfo NewInfo)
 {
+	if (WeaponSlots.IsValidIndex(IndexWeapon))
+	{
+		bool bIsFind = false;
+		int8 i = 0;
+		while (i < WeaponSlots.Num() && !bIsFind)
+		{
+			if (WeaponSlots[i].IndexSlot == IndexWeapon)
+			{
+				WeaponSlots[i].AdditionalInfo = NewInfo;
+				bIsFind = true;
+			}
+			i++;
+		}
+		if(!bIsFind)
+			UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::SetAdditionalWeaponInfo  -  NOT FOUND WEAPON WITH INDEX - %d"), IndexWeapon);
+
+	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::GetAdditionalInfoWeapon  -  NOT CORRECT WEAPON INDEX - %d"), IndexWeapon);
+
 }
 
