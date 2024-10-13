@@ -394,21 +394,17 @@ void ATDSCharacter::TrySwitchNextWeapon()
 
 		if (InventoryComponent)
 		{
-			if (CurrentIndexWeapon + 1 > InventoryComponent->MaxSlotIndex)
+			if (CurrentIndexWeapon < InventoryComponent->MaxSlotIndex)
 			{
 				if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon + 1, OldIndex, OldInfo))
 				{
-						CurrentIndexWeapon = 0;
+						CurrentIndexWeapon = CurrentIndexWeapon + 1;
 				}
 			}
 			else
 			{
-				if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon + 1, OldIndex, OldInfo))
-				{
-					CurrentIndexWeapon = CurrentIndexWeapon + 1;
-				}
+				CurrentIndexWeapon = InventoryComponent->MaxSlotIndex;
 			}
-
 		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::TrySwitchNextWeapon  -  CurrentIndexWeapon  - %d"), CurrentIndexWeapon);
@@ -432,19 +428,16 @@ void ATDSCharacter::TrySwitchPreviosWeapon()
 
 		if (InventoryComponent)
 		{
-			if (CurrentIndexWeapon - 1 < 0)
-			{
-				if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon - 1, OldIndex, OldInfo))
-				{
-					CurrentIndexWeapon = InventoryComponent->MaxSlotIndex;
-				}
-			}
-			else
+			if (CurrentIndexWeapon > 0)
 			{
 				if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon - 1, OldIndex, OldInfo))
 				{
 					CurrentIndexWeapon = CurrentIndexWeapon - 1;
 				}
+			}
+			else
+			{
+				CurrentIndexWeapon = 0;
 			}
 		}
 	}
