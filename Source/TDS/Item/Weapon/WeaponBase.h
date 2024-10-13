@@ -46,7 +46,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")
 	FWeaponInfo WeaponSetting;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
-	FAddicionalWeaponInfo WeaponInfo;
+	FAdditionalWeaponInfo WeaponInfo;
 
 protected:
 	// Called when the game starts or when spawned

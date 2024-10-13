@@ -7,6 +7,7 @@
 
 #include "../FunctionLibrary/Types.h"
 #include "../Item/Weapon/WeaponBase.h"
+#include "Invertory/TDSInventoryComponent.h"
 
 #include "TDSCharacter.generated.h"
 
@@ -30,6 +31,9 @@ public:
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UTDSInventoryComponent* InventoryComponent;
 	
 private:
 	/** Top down camera */
@@ -87,7 +91,7 @@ public:
 	FName InitWeaponName;
 	UDecalComponent* CurrentCursor = nullptr;
 
-	//Func
+	//Character Functions
 	UFUNCTION(BlueprintCallable)
 	void AttackCharEvent(bool bIsFiring);
 	UFUNCTION(BlueprintCallable)
@@ -95,9 +99,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ChangeMovementState(EMovementState NewMovementState);
 	UFUNCTION(BlueprintCallable)
+
+	//Weapon Functions
+	void InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponAdditionalInfo);
+	UFUNCTION(BlueprintCallable)
 	AWeaponBase* GetCurrentWeapon();
 	UFUNCTION(BlueprintCallable)
-	void InitWeapon(FName IdWeaponName);
+	void RemoveCurrentWeapon();
 	UFUNCTION(BlueprintCallable)
 	void TryReloadWeapon();
 	UFUNCTION()
@@ -112,7 +120,12 @@ public:
 	void WeaponReloadStart_BP(UAnimMontage* Anim);
 	UFUNCTION(BlueprintNativeEvent)
 	void WeaponReloadEnd_BP();
-	//UFUNCTION(BlueprintCallable)
-	//UDecalComponent* GetCursorToWorld();
+
+	//Invertory Functions
+	void TrySwitchNextWeapon();
+	void TrySwitchPreviosWeapon();
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	int32 CurrentIndexWeapon = 0;
 };
 

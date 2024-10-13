@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ActorComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -45,6 +46,11 @@ ATDSCharacter::ATDSCharacter()
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	InventoryComponent = CreateDefaultSubobject<UTDSInventoryComponent>(TEXT("InventoryComponent"));
+	if (InventoryComponent)
+	{
+		InventoryComponent->OnSwitchWeapon.AddDynamic(this, &ATDSCharacter::InitWeapon);
+	}
 
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
@@ -62,7 +68,7 @@ void ATDSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitWeapon(InitWeaponName);
+	//InitWeapon(InitWeaponName, WeaponAdditionalInfo);
 }
 
 void ATDSCharacter::SetupPlayerInputComponent(UInputComponent* NewInputComponent)
@@ -75,6 +81,12 @@ void ATDSCharacter::SetupPlayerInputComponent(UInputComponent* NewInputComponent
 	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Pressed, this, &ATDSCharacter::InputAttackPressed);
 	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Released, this, &ATDSCharacter::InputAttackReleased);
 	NewInputComponent->BindAction(TEXT("ReloadEvent"), EInputEvent::IE_Released, this, &ATDSCharacter::TryReloadWeapon);
+
+	NewInputComponent->BindAction(TEXT("SwitchNextWeapon"), EInputEvent::IE_Pressed, this, &ATDSCharacter::TrySwitchNextWeapon);
+	NewInputComponent->BindAction(TEXT("SwitchPreviosWeapon"), EInputEvent::IE_Released, this, &ATDSCharacter::TrySwitchPreviosWeapon);
+	//NewInputComponent->BindAction(TEXT("GetFirstWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetFirstWeaponSlot);
+	//NewInputComponent->BindAction(TEXT("GetSecondWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetSecondWeaponSlot);
+	//NewInputComponent->BindAction(TEXT("GetThirdWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetThirdWeaponSlot);
 }
 
 void ATDSCharacter::InputAxisX(float Value)
@@ -245,9 +257,19 @@ AWeaponBase* ATDSCharacter::GetCurrentWeapon()
 	return CurrentWeapon;
 }
 
-
-void ATDSCharacter::InitWeapon(FName IdWeaponName)
+void ATDSCharacter::RemoveCurrentWeapon()
 {
+}
+
+
+void ATDSCharacter::InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponAdditionalInfo)
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Destroy();
+		CurrentWeapon = nullptr;
+	}
+
 	UTDSGameInstance* GameInstance = Cast<UTDSGameInstance>(GetGameInstance());
 	FWeaponInfo WeaponInfo;
 	if (GameInstance)
@@ -277,6 +299,9 @@ void ATDSCharacter::InitWeapon(FName IdWeaponName)
 					Weapon->ReloadTime = WeaponInfo.ReloadTime;
 					Weapon->UpdateStateWeapon(MovementState);
 
+					Weapon->WeaponInfo = WeaponAdditionalInfo;
+					if (InventoryComponent)
+						CurrentIndexWeapon = InventoryComponent->GetWeaponIndexSlotByName(IdWeaponName);
 
 					Weapon->OnWeaponFireStart.AddDynamic(this, &ATDSCharacter::WeaponFireStart);
 					Weapon->OnWeaponReloadStart.AddDynamic(this, &ATDSCharacter::WeaponReloadStart);
@@ -319,6 +344,7 @@ void ATDSCharacter::WeaponReloadEnd()
 	WeaponReloadEnd_BP();
 }
 
+
 void ATDSCharacter::WeaponFireStart_BP_Implementation(UAnimMontage* Anim)
 {
 	// in BP
@@ -334,9 +360,50 @@ void ATDSCharacter::WeaponReloadEnd_BP_Implementation()
 	// in BP
 }
 
+void ATDSCharacter::TrySwitchNextWeapon()
+{
+	if (InventoryComponent->WeaponSlots.Num() > 1)
+	{
+		//We have more then one weapon go switch
+		int8 OldIndex = CurrentIndexWeapon;
+		FAdditionalWeaponInfo OldInfo;
+		if (CurrentWeapon)
+		{
+			OldInfo = CurrentWeapon->WeaponInfo;
+			//if (CurrentWeapon->WeaponReloading)
+				//CurrentWeapon->CancelReload();
+		}
 
+		if (InventoryComponent)
+		{
+			if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon + 1, OldIndex, OldInfo))
+			{
 
-//UDecalComponent* ATDSCharacter::GetCursorToWorld()
-//{
-//	return CurrentCursor;
-//}
+			}
+		}
+	}
+}
+
+void ATDSCharacter::TrySwitchPreviosWeapon()
+{
+	if (InventoryComponent->WeaponSlots.Num() > 1)
+	{
+		//We have more then one weapon go switch
+		int8 OldIndex = CurrentIndexWeapon;
+		FAdditionalWeaponInfo OldInfo;
+		if (CurrentWeapon)
+		{
+			OldInfo = CurrentWeapon->WeaponInfo;
+			//if (CurrentWeapon->WeaponReloading)
+				//CurrentWeapon->CancelReload();
+		}
+
+		if (InventoryComponent)
+		{
+			if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon - 1, OldIndex, OldInfo))
+			{
+
+			}
+		}
+	}
+}
