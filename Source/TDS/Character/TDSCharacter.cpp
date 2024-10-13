@@ -366,17 +366,21 @@ void ATDSCharacter::TrySwitchWeapon(float Axis)
 	{
 		TrySwitchNextWeapon();
 		UE_LOG(LogTemp, Warning, TEXT("TrySwitchNextWeapon called"));
+		UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::TrySwitchPreviosWeapon  -  CurrentIndexWeapon  - %d"), CurrentIndexWeapon);
+
 	}
 	else if (Axis < 0)
 	{
 		TrySwitchPreviosWeapon();
 		UE_LOG(LogTemp, Warning, TEXT("TrySwitchPreviosWeapon called"));
+		UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::TrySwitchPreviosWeapon  -  CurrentIndexWeapon  - %d"), CurrentIndexWeapon);
+
 	}
 }
 
 void ATDSCharacter::TrySwitchNextWeapon()
 {
-	if (InventoryComponent->WeaponSlots.Num() > 1)
+	if (InventoryComponent->MaxWeaponSlots > 1)
 	{
 		//We have more then one weapon go switch
 		int8 OldIndex = CurrentIndexWeapon;
@@ -390,14 +394,25 @@ void ATDSCharacter::TrySwitchNextWeapon()
 
 		if (InventoryComponent)
 		{
-
-			if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon + 1, OldIndex, OldInfo))
+			if (CurrentIndexWeapon + 1 > InventoryComponent->MaxSlotIndex)
 			{
-
+				if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon + 1, OldIndex, OldInfo))
+				{
+						CurrentIndexWeapon = 0;
+				}
+			}
+			else
+			{
+				if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon + 1, OldIndex, OldInfo))
+				{
+					CurrentIndexWeapon = CurrentIndexWeapon + 1;
+				}
 			}
 
 		}
 	}
+	UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::TrySwitchNextWeapon  -  CurrentIndexWeapon  - %d"), CurrentIndexWeapon);
+
 }
 
 void ATDSCharacter::TrySwitchPreviosWeapon()
@@ -417,12 +432,21 @@ void ATDSCharacter::TrySwitchPreviosWeapon()
 
 		if (InventoryComponent)
 		{
-
-			if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon - 1, OldIndex, OldInfo))
+			if (CurrentIndexWeapon - 1 < 0)
 			{
-
+				if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon - 1, OldIndex, OldInfo))
+				{
+					CurrentIndexWeapon = InventoryComponent->MaxSlotIndex;
+				}
 			}
-
+			else
+			{
+				if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon - 1, OldIndex, OldInfo))
+				{
+					CurrentIndexWeapon = CurrentIndexWeapon - 1;
+				}
+			}
 		}
 	}
+
 }

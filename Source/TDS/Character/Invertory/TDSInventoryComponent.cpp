@@ -36,7 +36,8 @@ void UTDSInventoryComponent::BeginPlay()
 		}
 	}
 
-	MaxSlotsWeapon = WeaponSlots.Num();
+	MaxWeaponSlots = WeaponSlots.Num();
+	MaxSlotIndex = MaxWeaponSlots - 1;
 
 	if (WeaponSlots.IsValidIndex(0))
 	{
@@ -65,6 +66,10 @@ bool UTDSInventoryComponent::SwitchWeaponToIndex(int32 ChangeToIndex, int32 OldI
 	FName NewIdWeapon;
 	FAdditionalWeaponInfo NewAdditionalInfo;
 	int32 NewCurrentIndex = 0;
+
+	UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::SwitchWeaponToIndex  -  SWITCH TO INDEX  - %d"), ChangeToIndex);
+	UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::SwitchWeaponToIndex  -   CorrectIndex  - %d"), CorrectIndex);
+
 
 	int8 i = 0;
 	while (i < WeaponSlots.Num() && !bIsSuccess)

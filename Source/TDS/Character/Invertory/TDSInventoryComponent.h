@@ -35,7 +35,9 @@ public:
 	UPROPERTY(Editanywhere, BlueprintReadWrite, Category="Weapons")
 	TArray<FAmmoSlot> AmmoSlots;
 	UPROPERTY(Editanywhere, BlueprintReadWrite, Category="Weapons")
-	int32 MaxSlotsWeapon = 0;
+	int32 MaxWeaponSlots = 0;
+	UPROPERTY(Editanywhere, BlueprintReadWrite, Category="Weapons")
+	int32 MaxSlotIndex = 0;
 
 	// Functions
 	bool SwitchWeaponToIndex(int32 ChangeToIndex, int32 OldIndex, FAdditionalWeaponInfo OldInfo);
