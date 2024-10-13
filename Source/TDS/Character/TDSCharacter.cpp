@@ -339,9 +339,9 @@ void ATDSCharacter::WeaponReloadStart(UAnimMontage* Anim)
 	WeaponReloadStart_BP(Anim);
 }
 
-void ATDSCharacter::WeaponReloadEnd()
+void ATDSCharacter::WeaponReloadEnd(bool bIsSuccess)
 {
-	WeaponReloadEnd_BP();
+	WeaponReloadEnd_BP(bIsSuccess);
 }
 
 
@@ -355,7 +355,7 @@ void ATDSCharacter::WeaponReloadStart_BP_Implementation(UAnimMontage* Anim)
 	// in BP
 }
 
-void ATDSCharacter::WeaponReloadEnd_BP_Implementation()
+void ATDSCharacter::WeaponReloadEnd_BP_Implementation(bool bIsSuccess)
 {
 	// in BP
 }

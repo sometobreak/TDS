@@ -481,7 +481,17 @@ void AWeaponBase::FinishReload()
 	WeaponReloading = false;
 	WeaponInfo.Round = WeaponSetting.MaxRound;
 
-	OnWeaponReloadEnd.Broadcast();
+	OnWeaponReloadEnd.Broadcast(true);
+}
+
+void AWeaponBase::CancelReload()
+{
+	WeaponReloading = false;
+	if (WeaponSkeletalMesh && WeaponSkeletalMesh->GetAnimInstance())
+		WeaponSkeletalMesh->GetAnimInstance()->StopAllMontages(0.15f);
+
+	OnWeaponReloadEnd.Broadcast(false);
+	MagazineDropFlag = false;
 }
 
 void AWeaponBase::InitDropMesh(UStaticMesh* DropMesh, FTransform Offset, FVector DropImpulseDirection, float LifeTimeMesh, float ImpulseRandomDispersion, float PowerImpulse, float CustomMass)

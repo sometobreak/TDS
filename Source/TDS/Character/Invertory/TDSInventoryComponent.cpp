@@ -36,6 +36,8 @@ void UTDSInventoryComponent::BeginPlay()
 		}
 	}
 
+	MaxSlotsWeapon = WeaponSlots.Num();
+
 	if (WeaponSlots.IsValidIndex(0))
 	{
 		if (!WeaponSlots[0].NameItem.IsNone())
@@ -67,7 +69,8 @@ bool UTDSInventoryComponent::SwitchWeaponToIndex(int32 ChangeToIndex, int32 OldI
 	int8 i = 0;
 	while (i < WeaponSlots.Num() && !bIsSuccess)
 	{
-		if (WeaponSlots[i].IndexSlot == CorrectIndex)
+		//if (WeaponSlots[i].IndexSlot == CorrectIndex)
+		if (i == CorrectIndex)
 		{
 			if (!WeaponSlots[i].NameItem.IsNone())
 			{
@@ -103,7 +106,8 @@ int32 UTDSInventoryComponent::GetWeaponIndexSlotByName(FName IdWeaponName)
 		if (WeaponSlots[i].NameItem == IdWeaponName)
 		{
 			bIsFind = true;
-			result = WeaponSlots[i].IndexSlot;
+			//result = WeaponSlots[i].IndexSlot;
+			result = i;
 		}
 		i++;
 	}
@@ -119,7 +123,8 @@ FAdditionalWeaponInfo UTDSInventoryComponent::GetAdditionalInfoWeapon(int32 Inde
 		int8 i = 0;
 		while (i < WeaponSlots.Num() && !bIsFind)
 		{
-			if (WeaponSlots[i].IndexSlot == IndexWeapon)
+			//if (WeaponSlots[i].IndexSlot == IndexWeapon)
+			if (i == IndexWeapon)
 			{
 				result = WeaponSlots[i].AdditionalInfo;
 				bIsFind = true;
@@ -144,7 +149,8 @@ void UTDSInventoryComponent::SetAdditionalWeaponInfo(int32 IndexWeapon, FAdditio
 		int8 i = 0;
 		while (i < WeaponSlots.Num() && !bIsFind)
 		{
-			if (WeaponSlots[i].IndexSlot == IndexWeapon)
+			//if (WeaponSlots[i].IndexSlot == IndexWeapon)
+			if (i == IndexWeapon)
 			{
 				WeaponSlots[i].AdditionalInfo = NewInfo;
 				bIsFind = true;

@@ -231,8 +231,8 @@ struct FWeaponSlot
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Slot")
-	int32 IndexSlot = 0;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Slot")
+	//int32 IndexSlot = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Slot")
 	FName NameItem;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Slot")
