@@ -58,10 +58,10 @@ bool UTDSInventoryComponent::SwitchWeaponToIndex(int32 ChangeToIndex, int32 OldI
 	bool bIsSuccess = false;
 	int8 CorrectIndex = ChangeToIndex;
 	if (ChangeToIndex > WeaponSlots.Num() - 1)
-		CorrectIndex = 0;
+		CorrectIndex = WeaponSlots.Num() - 1;
 	else
 		if (ChangeToIndex < 0)
-			CorrectIndex = WeaponSlots.Num() - 1;
+			CorrectIndex = 0;
 
 	FName NewIdWeapon;
 	FAdditionalWeaponInfo NewAdditionalInfo;

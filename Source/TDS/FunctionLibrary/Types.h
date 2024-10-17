@@ -215,6 +215,11 @@ struct FWeaponInfo : public FTableRowBase
 	FDropMeshInfo MagazineDropMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh ")
 	FDropMeshInfo ShellBulletsMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory ")
+	float SwitchTimeToWeapon = 1.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh ")
+	UTexture2D* WeaponIcon = nullptr;
 };
 
 USTRUCT(BlueprintType)
