@@ -339,8 +339,12 @@ void ATDSCharacter::WeaponReloadStart(UAnimMontage* Anim)
 	WeaponReloadStart_BP(Anim);
 }
 
-void ATDSCharacter::WeaponReloadEnd(bool bIsSuccess)
+void ATDSCharacter::WeaponReloadEnd(bool bIsSuccess, int32 AmmoTake)
 {
+	if (InventoryComponent && CurrentWeapon)
+	{
+		InventoryComponent->WeaponChangeAmmo(CurrentWeapon->WeaponSetting.WeaponType, AmmoTake);
+	}
 	WeaponReloadEnd_BP(bIsSuccess);
 }
 

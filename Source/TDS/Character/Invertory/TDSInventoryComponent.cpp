@@ -171,3 +171,24 @@ void UTDSInventoryComponent::SetAdditionalWeaponInfo(int32 IndexWeapon, FAdditio
 
 }
 
+void UTDSInventoryComponent::WeaponChangeAmmo(EWeaponType TypeWeapon, int32 AmmoTaken)
+{
+	bool bIsFind = false;
+	int8 i = 0;
+	while (i < AmmoSlots.Num() && !bIsFind)
+	{
+		if (AmmoSlots[i].WeaponType == TypeWeapon)
+		{
+			AmmoSlots[i].Cout += AmmoTaken;
+			if (AmmoSlots[i].Cout > AmmoSlots[i].MaxCout)
+			{
+				AmmoSlots[i].Cout = AmmoSlots[i].MaxCout;
+			}
+
+			OnAmmoChange.Broadcast(AmmoSlots[i].WeaponType, AmmoSlots[i].Cout);
+			bIsFind = true;
+		}
+		i++;
+	}
+}
+

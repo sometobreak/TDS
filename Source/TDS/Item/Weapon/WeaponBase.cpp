@@ -479,9 +479,11 @@ void AWeaponBase::InitReload()
 void AWeaponBase::FinishReload()
 {
 	WeaponReloading = false;
+	int32 AmmoNeedTake = WeaponInfo.Round;
+	AmmoNeedTake -= WeaponSetting.MaxRound;
 	WeaponInfo.Round = WeaponSetting.MaxRound;
 
-	OnWeaponReloadEnd.Broadcast(true);
+	OnWeaponReloadEnd.Broadcast(true, AmmoNeedTake);
 }
 
 void AWeaponBase::CancelReload()
@@ -490,7 +492,7 @@ void AWeaponBase::CancelReload()
 	if (WeaponSkeletalMesh && WeaponSkeletalMesh->GetAnimInstance())
 		WeaponSkeletalMesh->GetAnimInstance()->StopAllMontages(0.15f);
 
-	OnWeaponReloadEnd.Broadcast(false);
+	OnWeaponReloadEnd.Broadcast(false, 0);
 	MagazineDropFlag = false;
 }
 
