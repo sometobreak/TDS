@@ -80,9 +80,8 @@ void ATDSCharacter::SetupPlayerInputComponent(UInputComponent* NewInputComponent
 
 	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Pressed, this, &ATDSCharacter::InputAttackPressed);
 	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Released, this, &ATDSCharacter::InputAttackReleased);
-	NewInputComponent->BindAction(TEXT("ReloadEvent"), EInputEvent::IE_Released, this, &ATDSCharacter::TryReloadWeapon);
-
-	NewInputComponent->BindAxis(TEXT("SwitchWeaponEvent"), this, &ATDSCharacter::TrySwitchWeapon);
+	NewInputComponent->BindAction(TEXT("ReloadEvent"), EInputEvent::IE_Pressed, this, &ATDSCharacter::TryReloadWeapon);
+	NewInputComponent->BindAction(TEXT("SwitchWeaponEvent"), EInputEvent::IE_Pressed, this, &ATDSCharacter::SwitchWeapon);
 	//NewInputComponent->BindAction(TEXT("GetFirstWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetFirstWeaponSlot);
 	//NewInputComponent->BindAction(TEXT("GetSecondWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetSecondWeaponSlot);
 	//NewInputComponent->BindAction(TEXT("GetThirdWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetThirdWeaponSlot);
@@ -282,7 +281,7 @@ void ATDSCharacter::InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponA
 
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-				SpawnParams.Owner = GetOwner();
+				SpawnParams.Owner = this;
 				SpawnParams.Instigator = GetInstigator();
 
 				AWeaponBase* Weapon = Cast<AWeaponBase>(GetWorld()->SpawnActor(WeaponSetting.WeaponClass, &SpawnLocation, &SpawnRotation, SpawnParams));
@@ -291,7 +290,7 @@ void ATDSCharacter::InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponA
 					FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
 					Weapon->AttachToComponent(GetMesh(), Rule, FName("WeaponSocketRightHand"));
 					CurrentWeapon = Weapon;
-
+					Weapon->WeaponName = IdWeaponName;
 					Weapon->WeaponSetting = WeaponSetting;
 					Weapon->WeaponInfo.Round = WeaponSetting.MaxRound;
 					//Remove !!! Debug
@@ -306,6 +305,13 @@ void ATDSCharacter::InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponA
 					Weapon->OnWeaponFireStart.AddDynamic(this, &ATDSCharacter::WeaponFireStart);
 					Weapon->OnWeaponReloadStart.AddDynamic(this, &ATDSCharacter::WeaponReloadStart);
 					Weapon->OnWeaponReloadEnd.AddDynamic(this, &ATDSCharacter::WeaponReloadEnd);
+
+					//Auto Reload
+					if (CurrentWeapon->GetWeaponRound() <= 0 && CurrentWeapon->CheckCanWeaponReload())
+						CurrentWeapon->InitReload();
+
+					
+
 				}
 			}
 		}
@@ -324,13 +330,18 @@ void ATDSCharacter::TryReloadWeapon()
 {
 	if (CurrentWeapon)
 	{
-		if (CurrentWeapon->GetWeaponRound() < CurrentWeapon->WeaponSetting.MaxRound)
+		if (CurrentWeapon->GetWeaponRound() < CurrentWeapon->WeaponSetting.MaxRound && CurrentWeapon->CheckCanWeaponReload())
 			CurrentWeapon->InitReload();
 	}
 }
 
 void ATDSCharacter::WeaponFireStart(UAnimMontage* Anim)
 {
+	if (InventoryComponent && CurrentWeapon)
+	{
+		InventoryComponent->SetAdditionalWeaponInfo(CurrentIndexWeapon, CurrentWeapon->WeaponInfo);
+	}
+
 	WeaponFireStart_BP(Anim);
 }
 
@@ -344,6 +355,7 @@ void ATDSCharacter::WeaponReloadEnd(bool bIsSuccess, int32 AmmoTake)
 	if (InventoryComponent && CurrentWeapon)
 	{
 		InventoryComponent->WeaponChangeAmmo(CurrentWeapon->WeaponSetting.WeaponType, AmmoTake);
+		InventoryComponent->SetAdditionalWeaponInfo(CurrentIndexWeapon, CurrentWeapon->WeaponInfo);
 	}
 	WeaponReloadEnd_BP(bIsSuccess);
 }
@@ -364,26 +376,9 @@ void ATDSCharacter::WeaponReloadEnd_BP_Implementation(bool bIsSuccess)
 	// in BP
 }
 
-void ATDSCharacter::TrySwitchWeapon(float Axis)
+void ATDSCharacter::SwitchWeapon()
 {
-	if (Axis > 0)
-	{
-		TrySwitchNextWeapon();
-		UE_LOG(LogTemp, Warning, TEXT("TrySwitchNextWeapon called"));
-		UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::TrySwitchPreviosWeapon  -  CurrentIndexWeapon  - %d"), CurrentIndexWeapon);
 
-	}
-	else if (Axis < 0)
-	{
-		TrySwitchPreviosWeapon();
-		UE_LOG(LogTemp, Warning, TEXT("TrySwitchPreviosWeapon called"));
-		UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::TrySwitchPreviosWeapon  -  CurrentIndexWeapon  - %d"), CurrentIndexWeapon);
-
-	}
-}
-
-void ATDSCharacter::TrySwitchNextWeapon()
-{
 	if (InventoryComponent->MaxWeaponSlots > 1)
 	{
 		//We have more then one weapon go switch
@@ -398,52 +393,18 @@ void ATDSCharacter::TrySwitchNextWeapon()
 
 		if (InventoryComponent)
 		{
-			if (CurrentIndexWeapon < InventoryComponent->MaxSlotIndex)
+			if (CurrentIndexWeapon == 0)
 			{
-				if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon + 1, OldIndex, OldInfo))
-				{
-						CurrentIndexWeapon = CurrentIndexWeapon + 1;
-				}
+				InventoryComponent->SwitchWeaponToIndex(1, OldIndex, OldInfo);
+				CurrentIndexWeapon = 1;
 			}
-			else
+			else if(CurrentIndexWeapon == 1)
 			{
-				CurrentIndexWeapon = InventoryComponent->MaxSlotIndex;
-			}
-		}
-	}
-	UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::TrySwitchNextWeapon  -  CurrentIndexWeapon  - %d"), CurrentIndexWeapon);
-
-}
-
-void ATDSCharacter::TrySwitchPreviosWeapon()
-{
-	if (InventoryComponent->WeaponSlots.Num() > 1)
-	{
-		//We have more then one weapon go switch
-		int8 OldIndex = CurrentIndexWeapon;
-		FAdditionalWeaponInfo OldInfo;
-		if (CurrentWeapon)
-		{
-			OldInfo = CurrentWeapon->WeaponInfo;
-			//if (CurrentWeapon->WeaponReloading)
-				//CurrentWeapon->CancelReload();
-		}
-
-
-		if (InventoryComponent)
-		{
-			if (CurrentIndexWeapon > 0)
-			{
-				if (InventoryComponent->SwitchWeaponToIndex(CurrentIndexWeapon - 1, OldIndex, OldInfo))
-				{
-					CurrentIndexWeapon = CurrentIndexWeapon - 1;
-				}
-			}
-			else
-			{
+				InventoryComponent->SwitchWeaponToIndex(0, OldIndex, OldInfo);
 				CurrentIndexWeapon = 0;
 			}
 		}
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::TrySwitchNextWeapon  -  CurrentIndexWeapon  - %d"), CurrentIndexWeapon);
 }
+

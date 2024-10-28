@@ -65,6 +65,7 @@ public:
 
 	// Weapon Init
 	void WeaponInit();
+	FName WeaponName;
 
 	// Bool Weapon State
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")
@@ -116,16 +117,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetWeaponRound();
+	int8 GetAviableAmmoForReload();
 	void InitReload();
 	void FinishReload();
 	void CancelReload();
+	bool CheckCanWeaponReload();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	bool ShowDebug = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	float SizeVectorToChangeShootDirectionLogic = 100.0f;
-
-	//Func
-
 };

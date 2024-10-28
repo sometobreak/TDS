@@ -7,7 +7,7 @@
 
 #include "../FunctionLibrary/Types.h"
 #include "../Item/Weapon/WeaponBase.h"
-#include "Invertory/TDSInventoryComponent.h"
+#include "Inventory/TDSInventoryComponent.h"
 
 #include "TDSCharacter.generated.h"
 
@@ -121,10 +121,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void WeaponReloadEnd_BP(bool bIsSuccess);
 
-	//Invertory Functions
-	void TrySwitchWeapon(float Axis);
-	void TrySwitchNextWeapon();
-	void TrySwitchPreviosWeapon();
+	//Inventory Functions
+	void SwitchWeapon();
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	int32 CurrentIndexWeapon = 0;

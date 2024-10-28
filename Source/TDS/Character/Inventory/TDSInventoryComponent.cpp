@@ -53,52 +53,59 @@ void UTDSInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 }
 
-bool UTDSInventoryComponent::SwitchWeaponToIndex(int32 ChangeToIndex, int32 OldIndex, FAdditionalWeaponInfo OldInfo)
+void UTDSInventoryComponent::SwitchWeaponToIndex(int32 ChangeToIndex, int32 OldIndex, FAdditionalWeaponInfo OldInfo)
 {
-	bool bIsSuccess = false;
-	int8 CorrectIndex = ChangeToIndex;
-	if (ChangeToIndex > WeaponSlots.Num() - 1)
-		CorrectIndex = WeaponSlots.Num() - 1;
-	else
-		if (ChangeToIndex < 0)
-			CorrectIndex = 0;
+	/*bool bIsSuccess = false;
+	int8 CorrectIndex = ChangeToIndex;*/
+	//if (ChangeToIndex > WeaponSlots.Num())
+	//	CorrectIndex = WeaponSlots.Num();
+	//else
+	//	if (ChangeToIndex < 0)
+	//		CorrectIndex = 0;
 
 	FName NewIdWeapon;
 	FAdditionalWeaponInfo NewAdditionalInfo;
-	int32 NewCurrentIndex = 0;
+	//int32 NewCurrentIndex = 0;
+
+	NewIdWeapon = WeaponSlots[ChangeToIndex].NameItem;
+	NewAdditionalInfo = WeaponSlots[ChangeToIndex].AdditionalInfo;
+	SetAdditionalWeaponInfo(OldIndex, OldInfo);
+	OnWeaponInit.Broadcast(ChangeToIndex);
+	OnSwitchWeapon.Broadcast(NewIdWeapon, NewAdditionalInfo);
+	//bIsSuccess = true;
 
 	UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::SwitchWeaponToIndex  -  SWITCH TO INDEX  - %d"), ChangeToIndex);
-	UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::SwitchWeaponToIndex  -   CorrectIndex  - %d"), CorrectIndex);
+	//UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::SwitchWeaponToIndex  -   CorrectIndex  - %d"), CorrectIndex);
 
 
-	int8 i = 0;
-	while (i < WeaponSlots.Num() && !bIsSuccess)
-	{
-		//if (WeaponSlots[i].IndexSlot == CorrectIndex)
-		if (i == CorrectIndex)
-		{
-			if (!WeaponSlots[i].NameItem.IsNone())
-			{
-				NewIdWeapon = WeaponSlots[i].NameItem;
-				NewAdditionalInfo = WeaponSlots[i].AdditionalInfo;
-				bIsSuccess = true;
-			}
-		}
-		i++;
-	}
+	//int8 i = 0;
+	//while (i < WeaponSlots.Num() && !bIsSuccess)
+	//{
+	//	//if (WeaponSlots[i].IndexSlot == CorrectIndex)
+	//	if (i == CorrectIndex)
+	//	{
+	//		if (!WeaponSlots[i].NameItem.IsNone())
+	//		{
+	//			NewIdWeapon = WeaponSlots[i].NameItem;
+	//			NewAdditionalInfo = WeaponSlots[i].AdditionalInfo;
+	//			bIsSuccess = true;
+	//		}
+	//	}
+	//	i++;
+	//}
 
-	if (!bIsSuccess)
-	{
+	//if (!bIsSuccess)
+	//{
 
-	}
+	//}
 
-	if (bIsSuccess)
-	{
-		SetAdditionalWeaponInfo(OldIndex, OldInfo);
-		OnSwitchWeapon.Broadcast(NewIdWeapon, NewAdditionalInfo);
-	}
+	//if (bIsSuccess)
+	//{
+	//	SetAdditionalWeaponInfo(OldIndex, OldInfo);
+	//	OnSwitchWeapon.Broadcast(NewIdWeapon, NewAdditionalInfo);
+	//}
 
-	return bIsSuccess;
+	//return true;
 }
 
 int32 UTDSInventoryComponent::GetWeaponIndexSlotByName(FName IdWeaponName)
@@ -159,6 +166,8 @@ void UTDSInventoryComponent::SetAdditionalWeaponInfo(int32 IndexWeapon, FAdditio
 			{
 				WeaponSlots[i].AdditionalInfo = NewInfo;
 				bIsFind = true;
+
+				OnWeaponInfoChange.Broadcast(IndexWeapon, NewInfo);
 			}
 			i++;
 		}
@@ -190,5 +199,29 @@ void UTDSInventoryComponent::WeaponChangeAmmo(EWeaponType TypeWeapon, int32 Ammo
 		}
 		i++;
 	}
+}
+
+bool UTDSInventoryComponent::CheckAmmoForWeapon(EWeaponType WeaponType, int8 &AviableAmmoForWeapon)
+{
+	AviableAmmoForWeapon = 0;
+	bool bIsFind = false;
+	int8 i = 0;
+	while (i < AmmoSlots.Num() && !bIsFind)
+	{
+		if (AmmoSlots[i].WeaponType == WeaponType)
+		{
+			bIsFind = true;
+			AviableAmmoForWeapon = AmmoSlots[i].Cout;
+			if (AmmoSlots[i].Cout > 0)
+			{
+				return true;
+			}
+		}
+		i++;
+	}
+
+	OnWeaponAmmoEmpty.Broadcast(WeaponType);
+
+	return false;
 }
 

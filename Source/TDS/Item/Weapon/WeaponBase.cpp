@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMeshActor.h"
 #include "TimerManager.h"
+#include "../../Character/Inventory/TDSInventoryComponent.h"
 
 // Sets default values
 AWeaponBase::AWeaponBase()
@@ -60,28 +61,17 @@ void AWeaponBase::Tick(float DeltaTime)
 
 void AWeaponBase::FireTick(float DeltaTime)
 {
-	if (GetWeaponRound() > 0)
+	if (GetWeaponRound() > 0 && !WeaponReloading && WeaponFiring)
 	{
-		
-		if (FireTimer <= 0.0f)
+		if (FireTimer < 0.0f)
 			if (WeaponFiring)
 			{
-				if (!WeaponReloading)
-				{
-					Fire();
-				}
+				Fire();
 			}
 			else
 				FireTimer -= DeltaTime;
 		else
 			FireTimer -= DeltaTime;
-	}
-	else
-	{
-		if (!WeaponReloading)
-		{
-			InitReload();
-		}
 	}
 }
 
@@ -228,11 +218,11 @@ void AWeaponBase::Fire()
 		}
 	}
 
-	OnWeaponFireStart.Broadcast(AnimToPlay);
-
 	FireTimer = WeaponSetting.RateOfFire;
 	WeaponInfo.Round = WeaponInfo.Round - 1;
 	ChangeDispersionByShot();
+
+	OnWeaponFireStart.Broadcast(AnimToPlay);	
 
 	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), WeaponSetting.SoundFireWeapon, ShootLocation->GetComponentLocation());
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WeaponSetting.EffectFireWeapon, ShootLocation->GetComponentTransform());
@@ -341,6 +331,12 @@ void AWeaponBase::Fire()
 			}
 		}
 	}
+
+	if (GetWeaponRound() <= 0 && !WeaponReloading)
+	{
+		if (CheckCanWeaponReload())
+			InitReload();
+	}
 }
 
 void AWeaponBase::UpdateStateWeapon(EMovementState NewMovementState)
@@ -438,6 +434,26 @@ int32 AWeaponBase::GetWeaponRound()
 	return WeaponInfo.Round;
 }
 
+int8 AWeaponBase::GetAviableAmmoForReload()
+{
+	int8 AviableAmmoForWeapon = WeaponSetting.MaxRound;
+	if (GetOwner())
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponBase::GetAviableAmmoForReload - OwnerName - %s"), *GetOwner()->GetName());
+
+		UTDSInventoryComponent* Inventory = Cast<UTDSInventoryComponent>(GetOwner()->GetComponentByClass(UTDSInventoryComponent::StaticClass()));
+		if (Inventory)
+		{
+			if (!Inventory->CheckAmmoForWeapon(WeaponSetting.WeaponType, AviableAmmoForWeapon))
+			{
+				AviableAmmoForWeapon = AviableAmmoForWeapon;
+			}
+		}
+	}
+
+	return AviableAmmoForWeapon;
+}
+
 void AWeaponBase::InitReload()
 {
 	WeaponReloading = true;
@@ -479,11 +495,24 @@ void AWeaponBase::InitReload()
 void AWeaponBase::FinishReload()
 {
 	WeaponReloading = false;
-	int32 AmmoNeedTake = WeaponInfo.Round;
-	AmmoNeedTake -= WeaponSetting.MaxRound;
-	WeaponInfo.Round = WeaponSetting.MaxRound;
 
-	OnWeaponReloadEnd.Broadcast(true, AmmoNeedTake);
+	int8 AviableInventoryAmmo = GetAviableAmmoForReload();
+	int8 AmmoNeedTake;
+	int8 NeedToReload = WeaponSetting.MaxRound - WeaponInfo.Round;
+
+	if (NeedToReload > AviableInventoryAmmo)
+	{
+		WeaponInfo.Round = AviableInventoryAmmo;
+		AmmoNeedTake = AviableInventoryAmmo;
+	}
+	else
+	{
+		WeaponInfo.Round += NeedToReload;
+		AmmoNeedTake = NeedToReload;
+	}
+
+
+	OnWeaponReloadEnd.Broadcast(true, -AmmoNeedTake);
 }
 
 void AWeaponBase::CancelReload()
@@ -494,6 +523,27 @@ void AWeaponBase::CancelReload()
 
 	OnWeaponReloadEnd.Broadcast(false, 0);
 	MagazineDropFlag = false;
+}
+
+bool AWeaponBase::CheckCanWeaponReload()
+{
+	bool result = true;
+
+	if (GetOwner())
+	{
+		UE_LOG(LogTemp, Error, TEXT("WeaponBase::CheckCanWeaponReload - OwnerName - %s"), *GetOwner()->GetName());
+		UTDSInventoryComponent* Inventory = Cast<UTDSInventoryComponent>(GetOwner()->GetComponentByClass(UTDSInventoryComponent::StaticClass()));
+		if (Inventory)
+		{
+			int8 AviableAmmoForWeapon;
+			if (!Inventory->CheckAmmoForWeapon(WeaponSetting.WeaponType, AviableAmmoForWeapon))
+			{
+				result = false;
+			}
+		}
+	}
+
+	return result;
 }
 
 void AWeaponBase::InitDropMesh(UStaticMesh* DropMesh, FTransform Offset, FVector DropImpulseDirection, float LifeTimeMesh, float ImpulseRandomDispersion, float PowerImpulse, float CustomMass)
