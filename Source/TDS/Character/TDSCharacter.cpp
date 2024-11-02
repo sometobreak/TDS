@@ -260,7 +260,7 @@ void ATDSCharacter::RemoveCurrentWeapon()
 }
 
 
-void ATDSCharacter::InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponAdditionalInfo)
+void ATDSCharacter::InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponAdditionalInfo, int32 NewCurrentIndexWeapon)
 {
 	if (CurrentWeapon)
 	{
@@ -350,11 +350,11 @@ void ATDSCharacter::WeaponReloadStart(UAnimMontage* Anim)
 	WeaponReloadStart_BP(Anim);
 }
 
-void ATDSCharacter::WeaponReloadEnd(bool bIsSuccess, int32 AmmoTake)
+void ATDSCharacter::WeaponReloadEnd(bool bIsSuccess, int32 CoutAmmoToChange)
 {
 	if (InventoryComponent && CurrentWeapon)
 	{
-		InventoryComponent->WeaponChangeAmmo(CurrentWeapon->WeaponSetting.WeaponType, AmmoTake);
+		InventoryComponent->WeaponChangeAmmo(CurrentWeapon->WeaponSetting.WeaponType, CoutAmmoToChange);
 		InventoryComponent->SetAdditionalWeaponInfo(CurrentIndexWeapon, CurrentWeapon->WeaponInfo);
 	}
 	WeaponReloadEnd_BP(bIsSuccess);
@@ -378,6 +378,8 @@ void ATDSCharacter::WeaponReloadEnd_BP_Implementation(bool bIsSuccess)
 
 void ATDSCharacter::SwitchWeapon()
 {
+	if (InventoryComponent->WeaponSlots[0].NameItem == "None" || InventoryComponent->WeaponSlots[1].NameItem == "None")
+		return;
 
 	if (InventoryComponent->MaxWeaponSlots > 1)
 	{

@@ -101,7 +101,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 
 	//Weapon Functions
-	void InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponAdditionalInfo);
+	void InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponAdditionalInfo, int32 NewCurrentIndexWeapon);
 	UFUNCTION(BlueprintCallable)
 	AWeaponBase* GetCurrentWeapon();
 	UFUNCTION(BlueprintCallable)
@@ -113,7 +113,7 @@ public:
 	UFUNCTION()
 	void WeaponReloadStart(UAnimMontage* Anim);
 	UFUNCTION()
-	void WeaponReloadEnd(bool bIsSuccess, int32 AmmoTake);
+	void WeaponReloadEnd(bool bIsSuccess, int32 CoutAmmoToChange);
 	UFUNCTION(BlueprintNativeEvent)
 	void WeaponFireStart_BP(UAnimMontage* Anim);
 	UFUNCTION(BlueprintNativeEvent)

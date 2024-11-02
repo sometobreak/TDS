@@ -43,7 +43,7 @@ public:
 	class UArrowComponent* ShellBulletLocation = nullptr;
 
 	// Weapon Info
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FireLogic")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fire Logic")
 	FWeaponInfo WeaponSetting;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Info")
 	FAdditionalWeaponInfo WeaponInfo;

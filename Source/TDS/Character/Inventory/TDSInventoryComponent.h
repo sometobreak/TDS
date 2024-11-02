@@ -9,11 +9,13 @@
 
 #include "TDSInventoryComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSwitchWeapon, FName, WeaponIdName, FAdditionalWeaponInfo, WeaponAdditionalInfo);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSwitchWeapon, FName, WeaponIdName, FAdditionalWeaponInfo, WeaponAdditionalInfo, int32, NewCurrentIndexWeapon);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChange, EWeaponType, TypeWeapon, int32, Cout);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponInfoChange, int32, SlotIndex, FAdditionalWeaponInfo, WeaponInfo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponAmmoEmpty, EWeaponType, WeaponType);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponInit, int32, SlotIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpdateWeaponSlot, int32, IndexSlotUpdate, FWeaponSlot, NewInfo);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TDS_API UTDSInventoryComponent : public UActorComponent
@@ -33,6 +35,8 @@ public:
 	FOnWeaponAmmoEmpty OnWeaponAmmoEmpty;
 	UPROPERTY(BlueprintAssignable, Editanywhere, BlueprintReadWrite, Category = "Inventory")
 	FOnWeaponInit OnWeaponInit;
+	UPROPERTY(BlueprintAssignable, Editanywhere, BlueprintReadWrite, Category = "Inventory")
+	FOnUpdateWeaponSlot OnUpdateWeaponSlot;
 
 protected:
 	virtual void BeginPlay() override;
@@ -56,7 +60,20 @@ public:
 	int32 GetWeaponIndexSlotByName(FName IdWeaponName);
 	FAdditionalWeaponInfo GetAdditionalInfoWeapon(int32 IndexWeapon);
 	void SetAdditionalWeaponInfo(int32 IndexWeapon, FAdditionalWeaponInfo NewInfo);
-	void WeaponChangeAmmo(EWeaponType TypeWeapon, int32 AmmoTaken);
+
+	UFUNCTION(BlueprintCallable)
+	void WeaponChangeAmmo(EWeaponType TypeWeapon, int32 CoutAmmoToChange);
 	bool CheckAmmoForWeapon(EWeaponType WeaponType, int8& AviableAmmoForWeapon);
+
+	//Interface PickUp Actors
+	UFUNCTION(BlueprintCallable, Category="Interface")
+	bool CheckCanTakeWeapon(int32 &FreeSlot);
+	UFUNCTION(BlueprintCallable, Category="Interface")
+	bool CheckCanTakeAmmo(EWeaponType WeaponType);
+	UFUNCTION(BlueprintCallable, Category = "Interface")
+	void SwitchWeaponToInventory();
+	UFUNCTION(BlueprintCallable, Category = "Interface")
+	bool GetWeaponToInventory(FWeaponSlot NewWeapon);
+
 };
 
