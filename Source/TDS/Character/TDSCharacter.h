@@ -122,7 +122,8 @@ public:
 	void WeaponReloadEnd_BP(bool bIsSuccess);
 
 	//Inventory Functions
-	void SwitchWeapon();
+	void SwitchWeaponEvent(float Value);
+	void SwitchWeapon(int8 SlotIndex);
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	int32 CurrentIndexWeapon = 0;

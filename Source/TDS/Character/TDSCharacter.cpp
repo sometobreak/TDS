@@ -81,7 +81,7 @@ void ATDSCharacter::SetupPlayerInputComponent(UInputComponent* NewInputComponent
 	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Pressed, this, &ATDSCharacter::InputAttackPressed);
 	NewInputComponent->BindAction(TEXT("FireEvent"), EInputEvent::IE_Released, this, &ATDSCharacter::InputAttackReleased);
 	NewInputComponent->BindAction(TEXT("ReloadEvent"), EInputEvent::IE_Pressed, this, &ATDSCharacter::TryReloadWeapon);
-	NewInputComponent->BindAction(TEXT("SwitchWeaponEvent"), EInputEvent::IE_Pressed, this, &ATDSCharacter::SwitchWeapon);
+	NewInputComponent->BindAxis(TEXT("SwitchWeaponEvent"), this, &ATDSCharacter::SwitchWeaponEvent);
 	//NewInputComponent->BindAction(TEXT("GetFirstWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetFirstWeaponSlot);
 	//NewInputComponent->BindAction(TEXT("GetSecondWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetSecondWeaponSlot);
 	//NewInputComponent->BindAction(TEXT("GetThirdWeaponSlot"), EInputEvent::IE_Released, this, &ATDSCharacter::GetThirdWeaponSlot);
@@ -376,37 +376,41 @@ void ATDSCharacter::WeaponReloadEnd_BP_Implementation(bool bIsSuccess)
 	// in BP
 }
 
-void ATDSCharacter::SwitchWeapon()
+
+
+void ATDSCharacter::SwitchWeaponEvent(float Value)
 {
-	if (InventoryComponent->WeaponSlots[0].NameItem == "None" || InventoryComponent->WeaponSlots[1].NameItem == "None")
+	
+	UE_LOG(LogTemp, Warning, TEXT(" ATDSCharacter::SwitchWeaponEvent  -  Value  - %d"), Value);
+	if (Value > 0)
+	{
+		SwitchWeapon(0);
+	}
+	else if (Value < 0)
+	{
+		SwitchWeapon(1);
+	}
+}
+
+void ATDSCharacter::SwitchWeapon(int8 SlotIndex)
+{
+	if (InventoryComponent->WeaponSlots[SlotIndex].NameItem == "None")
 		return;
 
-	if (InventoryComponent->MaxWeaponSlots > 1)
-	{
-		//We have more then one weapon go switch
-		int8 OldIndex = CurrentIndexWeapon;
-		FAdditionalWeaponInfo OldInfo;
-		if (CurrentWeapon)
-		{
-			OldInfo = CurrentWeapon->WeaponInfo;
-			//if (CurrentWeapon->WeaponReloading)
-				//CurrentWeapon->CancelReload();
-		}
 
-		if (InventoryComponent)
-		{
-			if (CurrentIndexWeapon == 0)
-			{
-				InventoryComponent->SwitchWeaponToIndex(1, OldIndex, OldInfo);
-				CurrentIndexWeapon = 1;
-			}
-			else if(CurrentIndexWeapon == 1)
-			{
-				InventoryComponent->SwitchWeaponToIndex(0, OldIndex, OldInfo);
-				CurrentIndexWeapon = 0;
-			}
-		}
+	int8 OldIndex = CurrentIndexWeapon;
+	FAdditionalWeaponInfo OldInfo;
+	if (CurrentWeapon)
+	{
+		OldInfo = CurrentWeapon->WeaponInfo;
 	}
+
+	if (InventoryComponent)
+	{
+		InventoryComponent->SwitchWeaponToIndex(SlotIndex, OldIndex, OldInfo);
+		CurrentIndexWeapon = SlotIndex;
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::TrySwitchNextWeapon  -  CurrentIndexWeapon  - %d"), CurrentIndexWeapon);
 }
 
