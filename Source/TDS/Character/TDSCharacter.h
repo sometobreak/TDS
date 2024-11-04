@@ -123,7 +123,8 @@ public:
 
 	//Inventory Functions
 	void SwitchWeaponEvent(float Value);
-	void SwitchWeapon(int8 SlotIndex);
+	UFUNCTION(BlueprintCallable)
+	void SwitchWeapon(int32 SlotIndex);
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	int32 CurrentIndexWeapon = 0;

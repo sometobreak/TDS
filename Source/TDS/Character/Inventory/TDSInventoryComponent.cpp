@@ -57,26 +57,28 @@ void UTDSInventoryComponent::SwitchWeaponToIndex(int32 ChangeToIndex, int32 OldI
 {
 	if (ChangeToIndex == OldIndex)
 	{
-		return;
+		if (WeaponSlots[OldIndex].NameItem.IsNone())
+		{
+			SetAdditionalWeaponInfo(OldIndex, OldInfo);
+		}
 	}
-
-	FName NewIdWeapon;
-	FAdditionalWeaponInfo NewAdditionalInfo;
-
-
-	NewIdWeapon = WeaponSlots[ChangeToIndex].NameItem;
-	NewAdditionalInfo = WeaponSlots[ChangeToIndex].AdditionalInfo;
-	OnWeaponInit.Broadcast(ChangeToIndex);
-	OnSwitchWeapon.Broadcast(NewIdWeapon, NewAdditionalInfo, ChangeToIndex);
-
-	if (!WeaponSlots[OldIndex].NameItem.IsNone())
+	else
 	{
-		SetAdditionalWeaponInfo(OldIndex, OldInfo);
+		FName NewIdWeapon;
+		FAdditionalWeaponInfo NewAdditionalInfo;
+
+		NewIdWeapon = WeaponSlots[ChangeToIndex].NameItem;
+		NewAdditionalInfo = WeaponSlots[ChangeToIndex].AdditionalInfo;
+		OnWeaponInit.Broadcast(ChangeToIndex);
+		OnSwitchWeapon.Broadcast(NewIdWeapon, NewAdditionalInfo, ChangeToIndex);
+
+		if (!WeaponSlots[OldIndex].NameItem.IsNone())
+		{
+			SetAdditionalWeaponInfo(OldIndex, OldInfo);
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::SwitchWeaponToIndex  -  SWITCH TO INDEX  - %d"), ChangeToIndex);
 	}
-
-
-	UE_LOG(LogTemp, Warning, TEXT("UTDSInventoryComponent::SwitchWeaponToIndex  -  SWITCH TO INDEX  - %d"), ChangeToIndex);
-
 }
 
 int32 UTDSInventoryComponent::GetWeaponIndexSlotByName(FName IdWeaponName)
@@ -225,11 +227,22 @@ bool UTDSInventoryComponent::CheckCanTakeAmmo(EWeaponType WeaponType)
 	return result;
 }
 
-void UTDSInventoryComponent::SwitchWeaponToInventory()
+bool UTDSInventoryComponent::SwitchWeaponToInventory(FWeaponSlot NewWeapon, int32 CurrentWeaponIndex)
 {
+	bool result = false;
+
+	if (DropAdditionalWeaponToInventory())
+	{
+		WeaponSlots[1] = NewWeapon;
+		SwitchWeaponToIndex(1, CurrentWeaponIndex, NewWeapon.AdditionalInfo);
+		result = true;
+		OnUpdateWeaponSlot.Broadcast(1, NewWeapon);
+	}
+
+	return result;
 }
 
-bool UTDSInventoryComponent::GetWeaponToInventory(FWeaponSlot NewWeapon)
+bool UTDSInventoryComponent::GetWeaponToInventory(FWeaponSlot Weapon)
 {
 	bool success = false;
 	int32 SlotIndex = -1;
@@ -238,12 +251,17 @@ bool UTDSInventoryComponent::GetWeaponToInventory(FWeaponSlot NewWeapon)
 	{
 		if (WeaponSlots.IsValidIndex(SlotIndex))
 		{
-			WeaponSlots[SlotIndex] = NewWeapon;
-			OnUpdateWeaponSlot.Broadcast(SlotIndex, NewWeapon);
+			WeaponSlots[SlotIndex] = Weapon;
+			OnUpdateWeaponSlot.Broadcast(SlotIndex, Weapon);
 			success = true;
 		}
 	}
 
 	return success;
+}
+
+bool UTDSInventoryComponent::DropAdditionalWeaponToInventory()
+{
+	return true;
 }
 

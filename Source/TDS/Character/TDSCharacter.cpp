@@ -380,8 +380,6 @@ void ATDSCharacter::WeaponReloadEnd_BP_Implementation(bool bIsSuccess)
 
 void ATDSCharacter::SwitchWeaponEvent(float Value)
 {
-	
-	UE_LOG(LogTemp, Warning, TEXT(" ATDSCharacter::SwitchWeaponEvent  -  Value  - %d"), Value);
 	if (Value > 0)
 	{
 		SwitchWeapon(0);
@@ -392,7 +390,7 @@ void ATDSCharacter::SwitchWeaponEvent(float Value)
 	}
 }
 
-void ATDSCharacter::SwitchWeapon(int8 SlotIndex)
+void ATDSCharacter::SwitchWeapon(int32 SlotIndex)
 {
 	if (InventoryComponent->WeaponSlots[SlotIndex].NameItem == "None")
 		return;

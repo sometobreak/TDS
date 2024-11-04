@@ -71,9 +71,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Interface")
 	bool CheckCanTakeAmmo(EWeaponType WeaponType);
 	UFUNCTION(BlueprintCallable, Category = "Interface")
-	void SwitchWeaponToInventory();
+	bool SwitchWeaponToInventory(FWeaponSlot NewWeapon, int32 CurrentWeaponIndex);
 	UFUNCTION(BlueprintCallable, Category = "Interface")
-	bool GetWeaponToInventory(FWeaponSlot NewWeapon);
+	bool GetWeaponToInventory(FWeaponSlot Weapon);
+	UFUNCTION(BlueprintCallable, Category = "Interface")
+	bool DropAdditionalWeaponToInventory();
 
 };
 
