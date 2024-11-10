@@ -46,6 +46,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+
 	UPROPERTY(Editanywhere, BlueprintReadWrite, Category="Weapons")
 	TArray<FWeaponSlot> WeaponSlots;
 	UPROPERTY(Editanywhere, BlueprintReadWrite, Category="Weapons")
@@ -58,6 +59,7 @@ public:
 	// Functions
 	void SwitchWeaponToIndex(int32 ChangeToIndex, int32 OldIndex, FAdditionalWeaponInfo OldInfo);
 	int32 GetWeaponIndexSlotByName(FName IdWeaponName);
+	FName GetWeaponNameByIndexSlot(int32 IndexSlot);
 	FAdditionalWeaponInfo GetAdditionalInfoWeapon(int32 IndexWeapon);
 	void SetAdditionalWeaponInfo(int32 IndexWeapon, FAdditionalWeaponInfo NewInfo);
 
@@ -65,17 +67,17 @@ public:
 	void WeaponChangeAmmo(EWeaponType TypeWeapon, int32 CoutAmmoToChange);
 	bool CheckAmmoForWeapon(EWeaponType WeaponType, int8& AviableAmmoForWeapon);
 
-	//Interface PickUp Actors
+	// Interface Pickup Actors
 	UFUNCTION(BlueprintCallable, Category="Interface")
 	bool CheckCanTakeWeapon(int32 &FreeSlot);
 	UFUNCTION(BlueprintCallable, Category="Interface")
 	bool CheckCanTakeAmmo(EWeaponType WeaponType);
 	UFUNCTION(BlueprintCallable, Category = "Interface")
-	bool SwitchWeaponToInventory(FWeaponSlot NewWeapon, int32 CurrentWeaponIndex);
+	FDropWeapon SwitchAdditionalWeapon(FWeaponSlot NewWeapon, int32 CurrentWeaponIndex);
 	UFUNCTION(BlueprintCallable, Category = "Interface")
 	bool GetWeaponToInventory(FWeaponSlot Weapon);
 	UFUNCTION(BlueprintCallable, Category = "Interface")
-	bool DropAdditionalWeaponToInventory();
+	bool GetDropWeaponInfoToInventory(int32 SlotIndex, FDropWeapon &DropWeaponInfo);
 
 };
 

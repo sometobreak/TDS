@@ -290,17 +290,16 @@ void ATDSCharacter::InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponA
 					FAttachmentTransformRules Rule(EAttachmentRule::SnapToTarget, false);
 					Weapon->AttachToComponent(GetMesh(), Rule, FName("WeaponSocketRightHand"));
 					CurrentWeapon = Weapon;
+
 					Weapon->WeaponName = IdWeaponName;
 					Weapon->WeaponSetting = WeaponSetting;
-					Weapon->WeaponInfo.Round = WeaponSetting.MaxRound;
-					//Remove !!! Debug
+					//Weapon->WeaponInfo.Round = WeaponSetting.MaxRound;
 					Weapon->ReloadTime = WeaponSetting.ReloadTime;
 					Weapon->UpdateStateWeapon(MovementState);
-
 					Weapon->WeaponInfo = WeaponAdditionalInfo;
+
 					if (InventoryComponent)
 						CurrentIndexWeapon = InventoryComponent->GetWeaponIndexSlotByName(IdWeaponName);
-
 
 					Weapon->OnWeaponFireStart.AddDynamic(this, &ATDSCharacter::WeaponFireStart);
 					Weapon->OnWeaponReloadStart.AddDynamic(this, &ATDSCharacter::WeaponReloadStart);
@@ -308,10 +307,7 @@ void ATDSCharacter::InitWeapon(FName IdWeaponName, FAdditionalWeaponInfo WeaponA
 
 					//Auto Reload
 					if (CurrentWeapon->GetWeaponRound() <= 0 && CurrentWeapon->CheckCanWeaponReload())
-						CurrentWeapon->InitReload();
-
-					
-
+						CurrentWeapon->InitReload();	
 				}
 			}
 		}
@@ -398,6 +394,7 @@ void ATDSCharacter::SwitchWeapon(int32 SlotIndex)
 
 	int8 OldIndex = CurrentIndexWeapon;
 	FAdditionalWeaponInfo OldInfo;
+	
 	if (CurrentWeapon)
 	{
 		OldInfo = CurrentWeapon->WeaponInfo;

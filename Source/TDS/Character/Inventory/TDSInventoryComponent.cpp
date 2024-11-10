@@ -2,12 +2,13 @@
 
 #include "TDSInventoryComponent.h"
 #include "../../Game/TDSGameInstance.h"
+#include "../TDSCharacter.h"
+
 
 // Sets default values for this component's properties
 UTDSInventoryComponent::UTDSInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
 
 }
 
@@ -57,10 +58,7 @@ void UTDSInventoryComponent::SwitchWeaponToIndex(int32 ChangeToIndex, int32 OldI
 {
 	if (ChangeToIndex == OldIndex)
 	{
-		if (WeaponSlots[OldIndex].NameItem.IsNone())
-		{
-			SetAdditionalWeaponInfo(OldIndex, OldInfo);
-		}
+		return;
 	}
 	else
 	{
@@ -99,6 +97,16 @@ int32 UTDSInventoryComponent::GetWeaponIndexSlotByName(FName IdWeaponName)
 	return int32();
 }
 
+FName UTDSInventoryComponent::GetWeaponNameByIndexSlot(int32 IndexSlot)
+{
+	FName result;
+	if (WeaponSlots.IsValidIndex(IndexSlot))
+	{
+		result = WeaponSlots[IndexSlot].NameItem;
+	}
+	return result;
+}
+
 FAdditionalWeaponInfo UTDSInventoryComponent::GetAdditionalInfoWeapon(int32 IndexWeapon)
 {
 	FAdditionalWeaponInfo result;
@@ -134,12 +142,10 @@ void UTDSInventoryComponent::SetAdditionalWeaponInfo(int32 IndexWeapon, FAdditio
 		int8 i = 0;
 		while (i < WeaponSlots.Num() && !bIsFind)
 		{
-			//if (WeaponSlots[i].IndexSlot == IndexWeapon)
 			if (i == IndexWeapon)
 			{
 				WeaponSlots[i].AdditionalInfo = NewInfo;
 				bIsFind = true;
-
 				OnWeaponInfoChange.Broadcast(IndexWeapon, NewInfo);
 			}
 			i++;
@@ -227,19 +233,27 @@ bool UTDSInventoryComponent::CheckCanTakeAmmo(EWeaponType WeaponType)
 	return result;
 }
 
-bool UTDSInventoryComponent::SwitchWeaponToInventory(FWeaponSlot NewWeapon, int32 CurrentWeaponIndex)
+// SwitchWeaponToInventory
+FDropWeapon UTDSInventoryComponent::SwitchAdditionalWeapon(FWeaponSlot NewWeapon, int32 CurrentWeaponIndex)
 {
-	bool result = false;
+	FDropWeapon DropWeaponInfo;
+	ATDSCharacter* Owner = Cast<ATDSCharacter>(GetOwner());
+	bool currentSwitch = CurrentWeaponIndex == 1;
 
-	if (DropAdditionalWeaponToInventory())
+	if (GetDropWeaponInfoToInventory(1, DropWeaponInfo))
 	{
-		WeaponSlots[1] = NewWeapon;
-		SwitchWeaponToIndex(1, CurrentWeaponIndex, NewWeapon.AdditionalInfo);
-		result = true;
-		OnUpdateWeaponSlot.Broadcast(1, NewWeapon);
+			Owner->SwitchWeapon(0);
+			WeaponSlots[1] = NewWeapon;
+			WeaponSlots[1].NameItem = NewWeapon.NameItem;
+			WeaponSlots[1].AdditionalInfo = NewWeapon.AdditionalInfo;
+			OnUpdateWeaponSlot.Broadcast(1, NewWeapon);
+			if (currentSwitch)
+			{
+				Owner->SwitchWeapon(1);
+			}		
 	}
 
-	return result;
+	return DropWeaponInfo;
 }
 
 bool UTDSInventoryComponent::GetWeaponToInventory(FWeaponSlot Weapon)
@@ -260,8 +274,21 @@ bool UTDSInventoryComponent::GetWeaponToInventory(FWeaponSlot Weapon)
 	return success;
 }
 
-bool UTDSInventoryComponent::DropAdditionalWeaponToInventory()
+bool UTDSInventoryComponent::GetDropWeaponInfoToInventory(int32 SlotIndex, FDropWeapon &DropWeaponInfo)
 {
-	return true;
+	bool result = false;
+	FName DropWeaponName = GetWeaponNameByIndexSlot(SlotIndex);
+	UTDSGameInstance* GameInstance = Cast<UTDSGameInstance>(GetWorld()->GetGameInstance());
+
+	if (GameInstance)
+	{
+		result = GameInstance->GetDropWeaponInfoByName(DropWeaponName, DropWeaponInfo);
+		if (WeaponSlots.IsValidIndex(SlotIndex))
+		{
+			DropWeaponInfo.WeaponDropInfo.AdditionalInfo = WeaponSlots[SlotIndex].AdditionalInfo;
+		}
+	}
+
+	return result;
 }
 

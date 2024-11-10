@@ -61,7 +61,7 @@ void AWeaponBase::Tick(float DeltaTime)
 
 void AWeaponBase::FireTick(float DeltaTime)
 {
-	if (GetWeaponRound() > 0 && !WeaponReloading && WeaponFiring)
+	if (GetWeaponRound() > 0 && !WeaponReloading)
 	{
 		if (FireTimer < 0.0f)
 			if (WeaponFiring)

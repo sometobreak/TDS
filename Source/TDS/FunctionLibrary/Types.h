@@ -5,6 +5,9 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+//#include "Engine/Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "Engine/DataTable.h"
 
 #include "Types.generated.h"
@@ -268,6 +271,8 @@ struct FDropWeapon : public FTableRowBase
 	UStaticMesh* WeaponStaticMesh = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drop Weapon")
 	USkeletalMesh* WeaponSkeletalMesh = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drop Weapon")
+	UNiagaraComponent* NiagaraSystem = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drop Weapon")
 	FWeaponSlot WeaponDropInfo;
 };
