@@ -59,5 +59,5 @@ public:
 
 	// Debug
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
-	bool ShowDebug = false;
+	bool ShowDebug = true;
 };
