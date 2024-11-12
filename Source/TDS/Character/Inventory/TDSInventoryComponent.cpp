@@ -26,12 +26,18 @@ void UTDSInventoryComponent::BeginPlay()
 			if (!WeaponSlots[i].NameItem.IsNone())
 			{
 				FWeaponInfo WeaponInfo;
+				FDropWeapon DropWeaponInfo;
 				if (GameInstance->GetWeaponInfoByName(WeaponSlots[i].NameItem, WeaponInfo))
 					WeaponSlots[i].AdditionalInfo.Round = WeaponInfo.MaxRound;
 				else
 				{
 					/*WeaponSlots.RemoveAt(i);
 					i--;*/
+				}
+
+				if (GameInstance->GetDropWeaponInfoByName(WeaponSlots[i].NameItem, DropWeaponInfo))
+				{
+					WeaponSlots[i].WeaponType = DropWeaponInfo.DropWeaponType;
 				}
 			}
 		}
@@ -242,17 +248,17 @@ FDropWeapon UTDSInventoryComponent::SwitchAdditionalWeapon(FWeaponSlot NewWeapon
 
 	if (GetDropWeaponInfoToInventory(1, DropWeaponInfo))
 	{
-			Owner->SwitchWeapon(0);
-			WeaponSlots[1] = NewWeapon;
-			WeaponSlots[1].NameItem = NewWeapon.NameItem;
-			WeaponSlots[1].AdditionalInfo = NewWeapon.AdditionalInfo;
-			OnUpdateWeaponSlot.Broadcast(1, NewWeapon);
-			if (currentSwitch)
-			{
-				Owner->SwitchWeapon(1);
-			}		
+		Owner->SwitchWeapon(0);
+		WeaponSlots[1] = NewWeapon;
+		WeaponSlots[1].NameItem = NewWeapon.NameItem;
+		WeaponSlots[1].AdditionalInfo = NewWeapon.AdditionalInfo;
+		WeaponSlots[1].WeaponType = NewWeapon.WeaponType;
+		OnUpdateWeaponSlot.Broadcast(1, NewWeapon);
+		if (currentSwitch)
+		{
+			Owner->SwitchWeapon(1);
+		}
 	}
-
 	return DropWeaponInfo;
 }
 

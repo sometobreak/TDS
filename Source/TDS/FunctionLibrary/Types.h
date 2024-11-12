@@ -30,6 +30,7 @@ enum class EWeaponType : uint8
 	Shotgun UMETA(DisplayName = "Shotgun"),
 	GrenadeLauncher UMETA(DisplayName = "GrenadeLauncher"),
 	RocketLauncher UMETA(DisplayName = "RocketLauncher"),
+	//NullPtr UMETA(DisplayName = "NullPtr"),
 };
 
 USTRUCT(BlueprintType)
@@ -247,6 +248,8 @@ struct FWeaponSlot
 	FName NameItem;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Slot")
 	FAdditionalWeaponInfo AdditionalInfo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Slot")
+	EWeaponType WeaponType;
 };
 
 USTRUCT(BlueprintType)
@@ -275,6 +278,8 @@ struct FDropWeapon : public FTableRowBase
 	UNiagaraComponent* NiagaraSystem = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drop Weapon")
 	FWeaponSlot WeaponDropInfo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drop Weapon")
+	EWeaponType DropWeaponType;
 };
 
 UCLASS()
