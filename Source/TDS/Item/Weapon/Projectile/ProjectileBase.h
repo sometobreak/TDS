@@ -43,6 +43,7 @@ public:
 
 	// Explose Timers
 	bool TimerEnabled = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Explose")
 	float TimerToExplose = 0.0f;
 
 
