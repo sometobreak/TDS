@@ -28,5 +28,6 @@ public:
 	virtual void BulletCollisionSphereHit(class UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
 	virtual void ImpactProjectile() override;
 
+	UFUNCTION(BlueprintCallable, Category = "Explose")
 	void Explose();
 };
