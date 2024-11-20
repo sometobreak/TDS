@@ -43,11 +43,13 @@ void UTDSHealthComponent::ReceiveDamage(float Damage)
 	OnHealthChange.Broadcast(Health, Damage);
 	if (Health <= 0.0f)
 	{
+		OnDead.Broadcast();
 		DeadEvent();
 	}
 }
 
-void UTDSHealthComponent::DeadEvent()
+void UTDSHealthComponent::DeadEvent_Implementation()
 {
+	//BP
 }
 
