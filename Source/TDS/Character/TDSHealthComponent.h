@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "TDSHealthComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChange, float, Health);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChange, float, Health, float, Damage);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDead);
 
 USTRUCT(BlueprintType)
@@ -45,7 +45,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	float GetCurrentHealth();
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	void ReceiveDamage(float Damage);
+	virtual void ReceiveDamage(float Damage);
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void DeadEvent();
 };
