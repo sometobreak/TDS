@@ -15,5 +15,5 @@ class TDS_API UTDSCharacterHealthComponent : public UTDSHealthComponent
 	GENERATED_BODY()
 	
 public:
-	void ReceiveDamage(float Damage) override;
+	void ChangeHealth(float HP) override;
 };

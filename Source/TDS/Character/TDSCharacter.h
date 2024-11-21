@@ -8,6 +8,7 @@
 #include "../FunctionLibrary/Types.h"
 #include "../Item/Weapon/WeaponBase.h"
 #include "Inventory/TDSInventoryComponent.h"
+#include "TDSCharacterHealthComponent.h"
 
 #include "TDSCharacter.generated.h"
 
@@ -34,6 +35,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UTDSInventoryComponent* InventoryComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UTDSCharacterHealthComponent* HealthComponent;
 	
 private:
 	/** Top down camera */

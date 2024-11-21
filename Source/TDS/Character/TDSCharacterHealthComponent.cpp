@@ -3,8 +3,8 @@
 
 #include "TDSCharacterHealthComponent.h"
 
-void UTDSCharacterHealthComponent::ReceiveDamage(float Damage)
+void UTDSCharacterHealthComponent::ChangeHealth(float HP)
 {
-	Super::ReceiveDamage(Damage);
+	Super::ChangeHealth(HP);
 
 }

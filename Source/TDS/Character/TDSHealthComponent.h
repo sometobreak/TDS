@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "TDSHealthComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChange, float, Health, float, Damage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChange, float, CurrentHealth, float, HP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDead);
 
 USTRUCT(BlueprintType)
@@ -27,15 +27,16 @@ public:
 	// Sets default values for this component's properties
 	UTDSHealthComponent();
 
-	UPROPERTY(BlueprintAssignable, EditAnywhere, BlueprintReadWrite, Category = "Heatlh")
+	UPROPERTY(BlueprintAssignable, EditAnywhere, BlueprintReadWrite, Category = "Health")
 	FOnHealthChange OnHealthChange;
-	UPROPERTY(BlueprintAssignable, EditAnywhere, BlueprintReadWrite, Category = "Heatlh")
+	UPROPERTY(BlueprintAssignable, EditAnywhere, BlueprintReadWrite, Category = "Health")
 	FOnDead OnDead;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float Health = 100.0f;
 
 public:	
@@ -45,7 +46,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	float GetCurrentHealth();
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	virtual void ReceiveDamage(float Damage);
+	void SetCurrentHealth(float HP);
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	virtual void ChangeHealth(float HP);
 	UFUNCTION(BlueprintNativeEvent)
 	void DeadEvent();
 };

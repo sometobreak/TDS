@@ -37,10 +37,16 @@ float UTDSHealthComponent::GetCurrentHealth()
 	return Health;
 }
 
-void UTDSHealthComponent::ReceiveDamage(float Damage)
+void UTDSHealthComponent::SetCurrentHealth(float HP)
 {
-	Health -= Damage;
-	OnHealthChange.Broadcast(Health, Damage);
+	Health = HP;
+	return;
+}
+
+void UTDSHealthComponent::ChangeHealth(float HP)
+{
+	SetCurrentHealth(Health + HP);
+	OnHealthChange.Broadcast(Health, HP);
 	if (Health <= 0.0f)
 	{
 		OnDead.Broadcast();
