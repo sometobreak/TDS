@@ -126,12 +126,13 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 	// Rotation
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	FHitResult HitResult;
+	FVector WorldLocation, WorldDirection, CameraLocation, CameraDirection;
 	if (PlayerController)
 	{
-		FVector CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
-		FVector CameraDirection = PlayerController->PlayerCameraManager->GetCameraRotation().Vector();
+		CameraLocation = PlayerController->PlayerCameraManager->GetCameraLocation();
+		CameraDirection = PlayerController->PlayerCameraManager->GetCameraRotation().Vector();
 
-		FVector WorldLocation, WorldDirection;
+		
 		if (PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
 		{
 			FVector Start = CameraLocation;
@@ -167,21 +168,19 @@ void ATDSCharacter::MovementTick(float DeltaTime)
 		switch (MovementState)
 		{
 		case EMovementState::Aim_State:
-			Displacement = FVector(0.0f, 0.0f, 160.0f);
 			CurrentWeapon->ShouldReduceDispersion = true;
 			break;
 		case EMovementState::Walk_State:
-			Displacement = FVector(0.0f, 0.0f, 120.0f);
 			CurrentWeapon->ShouldReduceDispersion = false;
 			break;
 		case EMovementState::Run_State:
-			Displacement = FVector(0.0f, 0.0f, 120.0f);
 			CurrentWeapon->ShouldReduceDispersion = false;
 			break;
 		default:
 			break;
 		}
 
+		Displacement = FVector(0.0f, 0.0f, 160.0f);
 		CurrentWeapon->ShootEndLocation = HitResult.Location + Displacement;
 		//aim cursor like 3d Widget?
 	}

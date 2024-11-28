@@ -391,6 +391,8 @@ FVector AWeaponBase::GetFireEndLocation() const
 	bool bShootDirection = false;
 	FVector EndLocation = FVector(0.f);
 
+
+
 	FVector tmpV = (ShootLocation->GetComponentLocation() - ShootEndLocation);
 	//UE_LOG(LogTemp, Warning, TEXT("Vector: X = %f. Y = %f. Size = %f"), tmpV.X, tmpV.Y, tmpV.Size());
 
